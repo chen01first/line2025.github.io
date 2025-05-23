@@ -8,9 +8,8 @@
   <h3>正在紀錄推薦人，請稍候...</h3>
 
   <script>
-    const liffId = "2007467427-9YQgLR43"; // 你的 LIFF ID
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxlVGrRaWZJafYz6yIsgyaFC5Ly6Qe7s8e9EK6A7SB7O7WXXSplD4EiBe_RrhlgEQhZ/exec";
-    const fallbackUrl = "https://line.me/R/ti/p/@479qvcyc"; // LINE 官方帳號
+    const liffId = "2007467427-9YQgLR43"; // 替換成你的 LIFF ID
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbxlVGrRaWZJafYz6yIsgyaFC5Ly6Qe7s8e9EK6A7SB7O7WXXSplD4EiBe_RrhlgEQhZ/exec"; // 替換為你的 Google Apps Script URL
 
     const urlParams = new URLSearchParams(window.location.search);
     const tel = urlParams.get('tel');
@@ -20,15 +19,14 @@
         await liff.init({ liffId });
 
         if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href });
+          liff.login();
           return;
         }
 
         const profile = await liff.getProfile();
         const userId = profile.userId;
 
-        // POST 資料到 Google Apps Script
-        await fetch(scriptUrl, {
+        const response = await fetch(scriptUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -36,12 +34,13 @@
           body: JSON.stringify({ userId, tel })
         });
 
-        // 成功後導回 LINE 官方帳號
-        window.location.href = fallbackUrl;
+        const result = await response.json();
+        alert("記錄成功: " + result.status);
 
-      } catch (err) {
-        alert("發生錯誤：" + err);
-        console.error(err);
+        window.location.href = "https://line.me/R/ti/p/@479qvcyc"; // 導回你的 LINE 官方帳號
+      } catch (error) {
+        alert("發生錯誤: " + error);
+        console.error(error);
       }
     }
 
