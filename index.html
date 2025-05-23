@@ -11,13 +11,13 @@
 </head>
 <body>
   <h2>記錄推薦人</h2>
-  <p id="status">正在紀錄推薦人，請稍候..2468.</p>
+  <p id="status">正在紀錄推薦人，請稍候...</p>
 
   <!-- 載入 LINE LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec'; // 更新為新 GAS URL（如果不同）
     const LIFF_ID = '2007467427-9YQgLR43';
 
     // 從 URL 或 liff.state 中提取 tel 參數
@@ -71,10 +71,13 @@
             userId: userId,
             tel: tel
           })
+        }).catch(err => {
+          throw new Error(`Fetch 失敗：${err.message}`);
         });
 
         if (!response.ok) {
-          throw new Error(`伺服器回應錯誤：${response.status}`);
+          const errorText = await response.text().catch(() => '無法解析回應');
+          throw new Error(`伺服器回應錯誤：${response.status}, 詳情：${errorText}`);
         }
 
         const result = await response.json();
