@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>記錄推薦人</title>
 </head>
 <body>
   <h2>記錄推薦人</h2>
   <p id="status">正在紀錄推薦人，請稍候...</p>
 
+  <!-- 載入 LINE LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <script>
+    // 👉 一進來先解 liff.state 的參數並重新導向一次
+    (function handleLiffState() {
+      const url = new URL(window.location.href);
+      const liffState = url.searchParams.get("liff.state");
+
+      if (liffState) {
+        const newUrl = `${window.location.origin}${window.location.pathname}${liffState}`;
+        window.location.replace(newUrl);
+      }
+    })();
+  </script>
+
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec';
 
-    // 從網址取得 tel 參數（優先取得 liff.state 中的 tel）
     function getTelFromUrl() {
       const url = new URL(window.location.href);
-      const liffState = url.searchParams.get("liff.state");
-      if (liffState) {
-        // liff.state 通常是 URL encoded 的 query string，需再解析
-        const innerParams = new URLSearchParams(liffState);
-        return innerParams.get("tel");
-      }
       return url.searchParams.get("tel");
     }
 
@@ -33,38 +41,34 @@
 
         if (!liff.isLoggedIn()) {
           liff.login();
-          return; // 登入後不繼續執行
+          return;
         }
 
         const profile = await liff.getProfile();
         const userId = profile.userId;
 
-        // 呼叫 Google Apps Script API，POST 資料
+        // 傳送資料到 Google Apps Script
         const response = await fetch(GAS_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, tel })
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: userId,
+            tel: tel
+          })
         });
 
-        if (!response.ok) {
-          throw new Error(`伺服器錯誤，狀態碼：${response.status}`);
-        }
-
-        // 預期 GAS 回傳 JSON 格式
-        const result = await response.json();
-
-        if (result.status === 'OK') {
-          document.getElementById('status').innerText = '紀錄成功！';
-        } else {
-          document.getElementById('status').innerText = '紀錄失敗：' + (result.message || '未知錯誤');
-        }
+        const result = await response.text();
+        document.getElementById('status').innerText = '紀錄成功：' + result;
       } catch (err) {
         console.error(err);
-        document.getElementById('status').innerText = '發生錯誤：' + err.message;
+        document.getElementById('status').innerText = '發生錯誤：' + err;
       }
     }
 
-    main();
+    // 等頁面載入完再執行主程式
+    window.addEventListener('load', main);
   </script>
 </body>
 </html>
