@@ -1,36 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>紀錄推薦人</title>
+  <title>記錄推薦人</title>
 </head>
 <body>
-  <h1>紀錄推薦人</h1>
-  <p>正在紀錄推薦人，請稍候...0524a</p>
+  <h2>記錄推薦人</h2>
+  <p id="status">正在紀錄推薦人，請稍候...</p>
 
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
-    // 取得網址列上的參數
-    const urlParams = new URLSearchParams(window.location.search);
-    const tel = urlParams.get('tel') || '未提供電話';
-    const userId = 'test123';  // 正式部署可改成 liff.getProfile().userId
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec';
 
-    // 發送資料到 GAS
-    fetch('https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ userId, tel })
-    })
-    .then(res => res.text())
-    .then(text => {
-      console.log('回應:', text);
-      document.body.innerHTML += `<p>紀錄完成：${text}</p>`;
-    })
-    .catch(err => {
-      console.error('錯誤:', err);
-      document.body.innerHTML += `<p>發生錯誤：${err}</p>`;
-    });
+    function getTelFromUrl() {
+      const url = new URL(window.location.href);
+      const liffState = url.searchParams.get("liff.state");
+
+      if (liffState) {
+        const innerParams = new URLSearchParams(liffState);
+        return innerParams.get("tel");
+      }
+
+      return url.searchParams.get("tel");
+    }
+
+    async function main() {
+      try {
+        const tel = getTelFromUrl();
+        if (!tel) throw new Error("無法取得電話號碼");
+
+        await liff.init({ liffId: "2007467427-9YQgLR43" });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        // 發送資料到 Google Apps Script
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: userId,
+            tel: tel
+          })
+        });
+
+        const result = await response.text();
+        document.getElementById('status').innerText = '紀錄成功：' + result;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('status').innerText = '發生錯誤：' + err;
+      }
+    }
+
+    main();
   </script>
 </body>
 </html>
