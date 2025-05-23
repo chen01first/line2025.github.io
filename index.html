@@ -1,49 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>記錄推薦人</title>
-  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <meta charset="UTF-8">
+  <title>紀錄推薦人</title>
 </head>
 <body>
-  <h3>正在紀錄推薦人，請稍候...new</h3>
+  <h1>紀錄推薦人</h1>
+  <p>正在紀錄推薦人，請稍候...0524</p>
 
   <script>
-    const liffId = "2007467427-9YQgLR43"; // 替換成你的 LIFF ID
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec"; // 替換為你的 Google Apps Script URL
+    // 取得網址列上的參數
     const urlParams = new URLSearchParams(window.location.search);
-    const tel = urlParams.get('tel');
+    const tel = urlParams.get('tel') || '未提供電話';
+    const userId = 'test123';  // 正式部署可改成 liff.getProfile().userId
 
-    async function main() {
-      try {
-        await liff.init({ liffId });
-
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        const userId = profile.userId;
-
-        const response = await fetch(scriptUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ userId, tel })
-        });
-
-        const result = await response.json();
-        alert("記錄成功: " + result.status);
-
-        window.location.href = "https://line.me/R/ti/p/@479qvcyc"; // 導回你的 LINE 官方帳號
-      } catch (error) {
-        alert("發生錯誤: " + error);
-        console.error(error);
-      }
-    }
-
-    main();
+    // 發送資料到 GAS
+    fetch('https://script.google.com/macros/s/AKfycbxlVGrRaWZJafYz6yIsgyaFC5Ly6Qe7s8e9EK6A7SB7O7WXXSplD4EiBe_RrhlgEQhZ/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId, tel })
+    })
+    .then(res => res.text())
+    .then(text => {
+      console.log('回應:', text);
+      document.body.innerHTML += `<p>紀錄完成：${text}</p>`;
+    })
+    .catch(err => {
+      console.error('錯誤:', err);
+      document.body.innerHTML += `<p>發生錯誤：${err}</p>`;
+    });
   </script>
 </body>
 </html>
