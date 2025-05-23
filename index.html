@@ -11,7 +11,7 @@
 </head>
 <body>
   <h2>記錄推薦人</h2>
-  <p id="status">正在紀錄推薦人，請稍候..1234.</p>
+  <p id="status">正在紀錄推薦人，請稍候..2468.</p>
 
   <!-- 載入 LINE LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -33,6 +33,7 @@
           tel = stateParams.get('tel');
         }
       }
+      console.log('Parsed tel:', tel); // 調試：檢查 tel 值
       return tel;
     }
 
