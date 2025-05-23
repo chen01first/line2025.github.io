@@ -2,54 +2,67 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>記錄推薦人</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #status { color: #333; }
+  </style>
 </head>
 <body>
   <h2>記錄推薦人</h2>
-  <p id="status">正在紀錄推薦人，請稍候...</p>
+  <p id="status">正在紀錄推薦人，請稍候..1234.</p>
 
   <!-- 載入 LINE LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <script>
-    // 👉 一進來先解 liff.state 的參數並重新導向一次
-    (function handleLiffState() {
-      const url = new URL(window.location.href);
-      const liffState = url.searchParams.get("liff.state");
-
-      if (liffState) {
-        const newUrl = `${window.location.origin}${window.location.pathname}${liffState}`;
-        window.location.replace(newUrl);
-      }
-    })();
-  </script>
-
-  <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec';
+    const LIFF_ID = '2007467427-9YQgLR43';
 
+    // 從 URL 或 liff.state 中提取 tel 參數
     function getTelFromUrl() {
       const url = new URL(window.location.href);
-      return url.searchParams.get("tel");
+      let tel = url.searchParams.get('tel');
+
+      // 如果 URL 中沒有 tel，嘗試從 liff.state 解析
+      if (!tel) {
+        const liffState = url.searchParams.get('liff.state');
+        if (liffState) {
+          const stateParams = new URLSearchParams(liffState.startsWith('?') ? liffState.slice(1) : liffState);
+          tel = stateParams.get('tel');
+        }
+      }
+      return tel;
     }
 
     async function main() {
+      const statusElement = document.getElementById('status');
       try {
+        // 提取 tel 參數
         const tel = getTelFromUrl();
-        if (!tel) throw new Error("無法取得電話號碼");
+        if (!tel) {
+          throw new Error('無法取得電話號碼，請確保 URL 中包含 tel 參數');
+        }
 
-        await liff.init({ liffId: "2007467427-9YQgLR43" });
+        // 初始化 LIFF
+        await liff.init({ liffId: LIFF_ID });
 
+        // 檢查是否已登入
         if (!liff.isLoggedIn()) {
-          liff.login();
+          statusElement.innerText = '請先登入 LINE';
+          liff.login({ redirectUri: window.location.href });
           return;
         }
 
+        // 獲取使用者資料
         const profile = await liff.getProfile();
         const userId = profile.userId;
 
         // 傳送資料到 Google Apps Script
         const response = await fetch(GAS_URL, {
           method: 'POST',
+          mode: 'cors',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -59,15 +72,23 @@
           })
         });
 
-        const result = await response.text();
-        document.getElementById('status').innerText = '紀錄成功：' + result;
+        if (!response.ok) {
+          throw new Error(`伺服器回應錯誤：${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.status === 'OK') {
+          statusElement.innerText = '紀錄成功！';
+        } else {
+          throw new Error(result.message || '未知錯誤');
+        }
       } catch (err) {
-        console.error(err);
-        document.getElementById('status').innerText = '發生錯誤：' + err;
+        console.error('錯誤詳情:', err);
+        statusElement.innerText = `發生錯誤：${err.message}`;
       }
     }
 
-    // 等頁面載入完再執行主程式
+    // 頁面載入完成後執行
     window.addEventListener('load', main);
   </script>
 </body>
