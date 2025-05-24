@@ -17,60 +17,67 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec'; // 更新為新 GAS URL
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxmkRO2ZMJWAUzGdMVlEtdeTSNj5ecqjxTiXl_TRqn8VFBtMLUFWaT7DCe_L1Rvoeu2/exec';
     const LIFF_ID = '2007467427-9YQgLR43';
 
-    // 從 URL 或 liff.state 中提取 tel 參數
     function getTelFromUrl() {
+      alert("Step A: 嘗試取得 tel 參數...");
       const url = new URL(window.location.href);
       let tel = url.searchParams.get('tel');
-      alert("tel是什麼:！" +tel);
-      // 如果 URL 中沒有 tel，嘗試從 liff.state 解析
-      if (!tel) {
-        const liffState = url.searchParams.get('liff.state');
-        if (liffState) {
-          const stateParams = new URLSearchParams(liffState.startsWith('?') ? liffState.slice(1) : liffState);
-          tel = stateParams.get('tel');
-        }
+      if (tel) {
+        alert("Step A1: 從主 URL 中找到 tel: " + tel);
+        return tel;
       }
-      console.log('Parsed tel:', tel); // 調試：檢查 tel 值
+
+      const liffState = url.searchParams.get('liff.state');
+      if (liffState) {
+        alert("Step A2: 從 liff.state 嘗試解析...");
+        const stateParams = new URLSearchParams(liffState.startsWith('?') ? liffState.slice(1) : liffState);
+        tel = stateParams.get('tel');
+        alert("Step A3: 從 liff.state 找到 tel: " + tel);
+      }
+
       return tel;
     }
 
     async function main() {
+      alert("Step B: 進入 main()");
 
-      alert("你好！01");
       const statusElement = document.getElementById('status');
+
       try {
-        // 提取 tel 參數
+        // Step C: 取得 tel
         const tel = getTelFromUrl();
         if (!tel) {
+          alert("Step C1: 未取得電話，停止");
           throw new Error('無法取得電話號碼，請確保 URL 中包含 tel 參數');
         }
 
-        // 初始化 LIFF
+        alert("Step C2: 成功取得 tel: " + tel);
+
+        // Step D: 初始化 LIFF
+        alert("Step D: 初始化 LIFF");
         await liff.init({ liffId: LIFF_ID });
+        alert("Step D2: LIFF 初始化完成");
 
-        // 檢查是否已登入
+        // Step E: 確認登入狀態
         if (!liff.isLoggedIn()) {
-          statusElement.innerText = '請先登入 LINE';
-          
-          alert("你好！02a");
+          alert("Step E: 尚未登入，準備跳轉登入");
           liff.login({ redirectUri: window.location.href });
-          alert("你好！02b");
           return;
-
-          
         }
 
-        // 獲取使用者資料
+        alert("Step F: 已登入，準備取得個人資料");
+
+        // Step G: 取得個人資料
         const profile = await liff.getProfile();
         const userId = profile.userId;
-       alert("你好！03user");
-        // 傳送資料到 Google Apps Script
-        const response = await fetch(GAS_URL, {
+        alert("Step G: 取得使用者 ID: " + userId);
 
-          alert("你好！04-fetch");
+        // Step H: 傳送到 Google Apps Script
+        alert("Step H: 傳送資料中...");
+
+        const response = await fetch(GAS_URL, {
           method: 'POST',
           mode: 'cors',
           headers: {
@@ -80,33 +87,34 @@
             userId: userId,
             tel: tel
           })
-        }).catch(err => {
-          throw new Error(`Fetch 失敗：${err.message}`);
         });
 
+        alert("Step H2: 完成 fetch");
+
         if (!response.ok) {
-          alert("你好！04-fetch-fail");
           const errorText = await response.text().catch(() => '無法解析回應');
           throw new Error(`伺服器回應錯誤：${response.status}, 詳情：${errorText}`);
         }
 
         const result = await response.json();
         if (result.status === 'OK') {
+          alert("Step I: 紀錄成功！");
           statusElement.innerText = '紀錄成功！';
-          alert("你好！05-ok");
         } else {
+          alert("Step I2: 伺服器回應非 OK");
           throw new Error(result.message || '未知錯誤');
-          alert("你好！05-not");
         }
       } catch (err) {
         console.error('錯誤詳情:', err);
-        alert("你好！05-not-2");
+        alert("Step X: 發生錯誤：" + err.message);
         statusElement.innerText = `發生錯誤：${err.message}`;
       }
     }
 
-    // 頁面載入完成後執行
-    window.addEventListener('load', main);
+    window.addEventListener('load', () => {
+      alert("Step Z: 頁面載入完成，執行 main()");
+      main();
+    });
   </script>
 </body>
 </html>
