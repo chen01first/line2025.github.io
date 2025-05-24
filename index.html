@@ -93,6 +93,7 @@
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => '無法解析回應');
+          alert("Step HH: 無法解析回應");
           throw new Error(`伺服器回應錯誤：${response.status}, 詳情：${errorText}`);
         }
 
