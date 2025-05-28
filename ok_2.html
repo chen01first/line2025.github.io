@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,13 +8,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-100 text-gray-800">
-  <div class="max-w-5xl mx-auto p-4 space-y-6">
+  <div class="max-w-6xl mx-auto p-4 space-y-6">
+    <!-- Header 區塊 -->
     <header class="text-center">
       <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
       <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
     </header>
 
+    <!-- Tabs 選單 -->
     <div class="bg-white p-6 rounded-lg shadow">
       <div class="tabs flex space-x-2 mb-4">
         <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
@@ -21,6 +25,7 @@
         <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享給更多人</button>
       </div>
 
+      <!-- 分析表單區 -->
       <label for="phoneInput" class="block text-lg font-medium mb-2">輸入電話號碼：</label>
       <input type="text" id="phoneInput" placeholder="請輸入09開頭的電話號碼:共10位數字"
         class="w-full p-3 border border-gray-300 rounded-md mb-4 text-lg" />
@@ -30,11 +35,13 @@
       </button>
     </div>
 
+    <!-- 分析結果區 -->
     <section>
       <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">分析結果</h2>
       <div id="analysisOutput" class="space-y-4"></div>
     </section>
 
+    <!-- 統計摘要區 -->
     <section>
       <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">主題統計</h2>
       <textarea id="summaryOutput" readonly
@@ -42,28 +49,33 @@
         placeholder="統計摘要會顯示在這裡..."></textarea>
     </section>
 
+    <!-- 手機號碼循環分析 -->
     <section>
       <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">手機號碼循環分析</h2>
-      <div id="cycleAnalysisOutput" class="space-y-2 text-base"></div>
+      <div id="cycleAnalysis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-4"></div>
+    </section>
+
+    <!-- 延伸分析 -->
+    <section>
+      <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">伏位主題延伸分析</h2>
+      <div id="extendAnalysis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-4"></div>
     </section>
   </div>
 
   <script>
     document.getElementById("analyzeBtn").addEventListener("click", () => {
-      let number = String(document.getElementById("phoneInput").value).trim();
+      const number = document.getElementById("phoneInput").value.trim();
       if (number.length !== 10 || !/^\d+$/.test(number) || !number.startsWith("09")) {
         alert("請輸入09開頭的電話號碼:共10位數字");
         return;
       }
-
-      const number_final = number + "0";
 
       const themes = {
         天醫: [13, 27, 49, 68, 31, 72, 94, 86],
         生氣: [14, 28, 39, 67, 41, 82, 93, 76],
         延年: [19, 26, 34, 78, 91, 62, 43, 87],
         伏位: [
-          0, 1, 2, 3, 4,5, 6, 7, 8, 9, 11, 22, 33, 44, 66, 77, 88, 99, 10, 20, 30, 40, 
+          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 66, 77, 88, 99, 10, 20, 30, 40,
           50, 60, 70, 80, 90, 51, 52, 53, 54, 55, 56, 57, 58, 59, 15, 25, 35,
           45, 65, 75, 85, 95,
         ],
@@ -73,15 +85,14 @@
         五鬼: [18, 24, 36, 79, 81, 42, 63, 97],
       };
 
-      const dangerThemes = ["六煞", "禍害", "絶命", "五鬼"];
       const stats = {};
-      Object.keys(themes).forEach(key => stats[key] = 0);
-
+      Object.keys(themes).forEach((key) => (stats[key] = 0));
       const results = [];
 
       for (let i = 0; i < number.length - 1; i++) {
         const segment = number.substring(i, i + 2);
         const value = parseInt(segment, 10);
+
         let found = "無符合";
         for (const [theme, values] of Object.entries(themes)) {
           if (values.includes(value)) {
@@ -102,26 +113,18 @@
         });
       }
 
+      // 最後一位 + 0
       const lastSegment = number[number.length - 1] + "0";
-      const lastValue = parseInt(lastSegment, 10);
-      let lastTheme = "無符合";
+      const value = parseInt(lastSegment, 10);
+      let found = "無符合";
       for (const [theme, values] of Object.entries(themes)) {
-        if (values.includes(lastValue)) {
-          lastTheme = theme;
+        if (values.includes(value)) {
+          found = theme;
           stats[theme]++;
           break;
         }
       }
-
-      results.push({
-        step: 10,
-        comment: "第10步：往前循環接0",
-        before: number.substring(0, 9),
-        highlight: lastSegment,
-        after: "",
-        value: lastValue,
-        theme: lastTheme,
-      });
+      results.push({ step: 10, comment: "第10步：往前循環接0", before: number.substring(0, 9), highlight: lastSegment, after: "", value, theme: found });
 
       const container = document.getElementById("analysisOutput");
       container.innerHTML = "";
@@ -132,71 +135,62 @@
       results.forEach(({ step, comment, before, highlight, after, value, theme }) => {
         const div = document.createElement("div");
         div.className = "bg-indigo-50 p-4 rounded-md shadow-sm text-sm";
-        const themeClass = dangerThemes.includes(theme) ? "text-red-600" : "text-emerald-700";
-        div.innerHTML = `
-          <p class="text-sm text-gray-500 mb-1">${comment}</p>
-          <p class="text-sm text-gray-500 mb-1">
-            <span class="tracking-widest">${before}</span>
-            <span class="text-red-600 font-bold">${highlight}</span>
-            <span class="tracking-widest">${after}</span>
-          </p>
-          <p><strong class="text-gray-800">${value.toString().padStart(2, "0")}</strong>：
-            <span class="${themeClass} font-semibold">${theme}</span>
-          </p>
-        `;
+        div.innerHTML = `<p class='text-sm text-gray-500 mb-1'>${comment}</p>
+                         <p><span class='tracking-widest'>${before}</span><span class='text-red-600 font-bold'>${highlight}</span><span class='tracking-widest'>${after}</span></p>
+                         <p><strong class='text-gray-800'>${value.toString().padStart(2, '0')}</strong>：<span class='text-emerald-700 font-semibold'>${theme}</span></p>`;
         grid.appendChild(div);
       });
 
+      // Summary
       const summary = [];
       Object.entries(stats).forEach(([theme, count]) => {
         if (count > 0) summary.push(`${theme}：${count}次`);
       });
-      if (summary.length === 0) summary.push("所有組別皆無符合主題");
-      document.getElementById("summaryOutput").value = summary.join("；");
+      document.getElementById("summaryOutput").value = summary.length ? summary.join("；") : "所有組別皆無符合主題";
 
-      // 循環分析
-      const segments = [];
-      for (let i = 0; i < number.length - 1; i++) {
-        segments.push(number.substring(i, i + 2));
-      }
-      segments.push(number[number.length - 1] + "0");
-
-      const baseThemes = segments.map(seg => {
-        const val = parseInt(seg, 10);
-        let theme = "伏位";
-        for (const [key, values] of Object.entries(themes)) {
-          if (values.includes(val)) {
-            theme = key;
-            break;
-          }
-        }
-        return { segment: seg, theme };
+      // 循環分析呈現
+      const cycleOutput = document.getElementById("cycleAnalysis");
+      cycleOutput.innerHTML = "";
+      results.forEach((r, i) => {
+        const div = document.createElement("div");
+        div.className = "bg-white rounded shadow p-2 text-center";
+        div.innerHTML = `<p class='font-bold text-indigo-600'>${i + 1}</p><p class='text-lg'>${r.highlight}</p><p>${r.theme}</p>`;
+        cycleOutput.appendChild(div);
       });
 
-      const extendedThemes = JSON.parse(JSON.stringify(baseThemes));
-      for (let i = 0; i < extendedThemes.length; i++) {
-        const t = extendedThemes[i];
-        if (["天醫", "生氣", "延年", "六煞", "禍害", "絶命", "五鬼"].includes(t.theme)) {
-          let j = i + 1;
-          while (j < extendedThemes.length && extendedThemes[j].theme === "伏位") {
-            const styleClass = dangerThemes.includes(t.theme) ? "text-red-600 font-bold" : "text-green-600 font-bold";
-            extendedThemes[j].theme = `<span class="${styleClass}">(伏位:${t.theme}延伸)</span>`;
-            j++;
+      // 延伸分析
+      const extended = [];
+      const path = [];
+      let lastTheme = null;
+      results.forEach((r) => {
+        let label = r.theme;
+        if (label === "伏位") {
+          if (lastTheme && lastTheme !== "伏位") {
+            label += `:${lastTheme}延伸`;
           }
         }
-      }
+        path.push({ segment: r.highlight, label });
+        lastTheme = r.theme;
+      });
 
-      const baseStr = baseThemes.map(t => `${t.segment}(${t.theme})`).join("→");
-      const extendedStr = extendedThemes.map(t => `${t.segment}(${t.theme})`).join("→");
-
-      const cycleContainer = document.getElementById("cycleAnalysisOutput");
-      cycleContainer.innerHTML = `
-        <p class="text-gray-800 font-semibold">[1]循環分析${number}：</p>
-        <p class="text-sm break-words">${baseStr}</p>
-        <p class="text-gray-800 font-semibold mt-2">[2]伏位在${number}的影響：</p>
-        <p class="text-sm break-words">${extendedStr}</p>
-      `;
+      const extendOutput = document.getElementById("extendAnalysis");
+      extendOutput.innerHTML = "";
+      path.forEach((p, i) => {
+        const div = document.createElement("div");
+        let themeClass = "";
+        if (p.label.includes("伏位:")) {
+          if (p.label.match(/伏位:(天醫|生氣|延年)延伸/)) {
+            themeClass = "text-green-600 font-bold";
+          } else {
+            themeClass = "text-red-600 font-bold";
+          }
+        }
+        div.className = "bg-white rounded shadow p-2 text-center";
+        div.innerHTML = `<p class='font-bold text-indigo-600'>${i + 1}</p><p class='text-lg'>${p.segment}</p><p class='${themeClass}'>${p.label}</p>`;
+        extendOutput.appendChild(div);
+      });
     });
   </script>
 </body>
+
 </html>
