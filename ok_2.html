@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>蔡老師數字DNA分析工具</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
 
 <body class="bg-gray-100 text-gray-800">
@@ -160,36 +160,50 @@
       });
 
       // 伏位主題延伸分析
-      const extended = [];
-      const path = [];
-      let lastTheme = null;
-      results.forEach((r) => {
-        let label = r.theme;
-        if (label === "伏位") {
-          if (lastTheme && lastTheme !== "伏位") {
-            label += `:${lastTheme}延伸`;
-          }
-        }
-        path.push({ segment: r.highlight, label });
-        lastTheme = r.theme;
-      });
-
       const extendOutput = document.getElementById("extendAnalysis");
       extendOutput.innerHTML = "";
-      path.forEach((p, i) => {
-        const div = document.createElement("div");
-        let themeClass = "";
-        if (p.label.includes("伏位:")) {
-          if (p.label.match(/伏位:(天醫|生氣|延年)延伸/)) {
-            themeClass = "text-green-600 font-bold";
+
+      // 先定義我們要追蹤的主題群（排除伏位和無符合）
+      const mainThemes = ["天醫", "生氣", "延年", "六煞", "禍害", "絶命", "五鬼"];
+
+      let baseTheme = null; // 開始的主題（非伏位）
+      let fuweiCount = 0;   // 伏位累計數
+
+      for (let i = 0; i < results.length; i++) {
+        const { highlight, theme, step } = results[i];
+        if (theme === "伏位") {
+          // 如果之前有 baseTheme，伏位累計並輸出
+          if (baseTheme && fuweiCount < 9) {
+            fuweiCount++;
+            const div = document.createElement("div");
+            div.className = "bg-white rounded shadow p-2 text-center";
+            div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>伏位:${baseTheme}延伸</p>`;
+            extendOutput.appendChild(div);
           } else {
-            themeClass = "text-red-600 font-bold";
+            // 如果沒有baseTheme就單純輸出伏位（可選，這裡忽略）
+            const div = document.createElement("div");
+            div.className = "bg-white rounded shadow p-2 text-center";
+            div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>伏位</p>`;
+            extendOutput.appendChild(div);
           }
+        } else if (mainThemes.includes(theme)) {
+          // 遇到非伏位的主題，重置基底主題，重置伏位計數
+          baseTheme = theme;
+          fuweiCount = 0;
+          const div = document.createElement("div");
+          div.className = "bg-white rounded shadow p-2 text-center";
+          div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>${theme}</p>`;
+          extendOutput.appendChild(div);
+        } else {
+          // 無符合 或其他，重置 baseTheme 與計數
+          baseTheme = null;
+          fuweiCount = 0;
+          const div = document.createElement("div");
+          div.className = "bg-white rounded shadow p-2 text-center";
+          div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>${theme}</p>`;
+          extendOutput.appendChild(div);
         }
-        div.className = "bg-white rounded shadow p-2 text-center";
-        div.innerHTML = `<p class='font-bold text-indigo-600'>${i + 1}</p><p class='text-lg'>${p.segment}</p><p class='${themeClass}'>${p.label}</p>`;
-        extendOutput.appendChild(div);
-      });
+      }
     });
   </script>
 </body>
