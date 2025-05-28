@@ -52,13 +52,13 @@
     <!-- 手機號碼循環分析 -->
     <section>
       <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">手機號碼循環分析</h2>
-      <div id="cycleAnalysis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-4"></div>
+      <div id="cycleAnalysis" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-10 gap-4"></div>
     </section>
 
     <!-- 延伸分析 -->
     <section>
       <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">伏位主題延伸分析</h2>
-      <div id="extendAnalysis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-4"></div>
+      <div id="extendAnalysis" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-10 gap-4"></div>
     </section>
   </div>
 
@@ -126,6 +126,7 @@
       }
       results.push({ step: 10, comment: "第10步：往前循環接0", before: number.substring(0, 9), highlight: lastSegment, after: "", value, theme: found });
 
+      // 分析結果區
       const container = document.getElementById("analysisOutput");
       container.innerHTML = "";
       const grid = document.createElement("div");
@@ -141,14 +142,14 @@
         grid.appendChild(div);
       });
 
-      // Summary
+      // 統計摘要
       const summary = [];
       Object.entries(stats).forEach(([theme, count]) => {
         if (count > 0) summary.push(`${theme}：${count}次`);
       });
       document.getElementById("summaryOutput").value = summary.length ? summary.join("；") : "所有組別皆無符合主題";
 
-      // 循環分析呈現
+      // 手機號碼循環分析
       const cycleOutput = document.getElementById("cycleAnalysis");
       cycleOutput.innerHTML = "";
       results.forEach((r, i) => {
@@ -158,7 +159,7 @@
         cycleOutput.appendChild(div);
       });
 
-      // 延伸分析
+      // 伏位主題延伸分析
       const extended = [];
       const path = [];
       let lastTheme = null;
