@@ -2,210 +2,302 @@
 <html lang="zh-TW">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>蔡老師數字DNA分析工具</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>蔡老師數字DNA分析工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-100 text-gray-800">
-  <div class="max-w-6xl mx-auto p-4 space-y-6">
-    <!-- Header 區塊 -->
-    <header class="text-center">
-      <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
-      <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
-    </header>
+    <div class="max-w-5xl mx-auto p-4 space-y-6">
+        <header class="text-center">
+            <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
+            <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
+        </header>
 
-    <!-- Tabs 選單 -->
-    <div class="bg-white p-6 rounded-lg shadow">
-      <div class="tabs flex space-x-2 mb-4">
-        <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
-        <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">有圖有真相</button>
-        <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享給更多人</button>
-      </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="tabs flex space-x-2 mb-4">
+                <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
+                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">有圖有真相</button>
+                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享更多人</button>
+            </div>
 
-      <!-- 分析表單區 -->
-      <label for="phoneInput" class="block text-lg font-medium mb-2">輸入電話號碼：</label>
-      <input type="text" id="phoneInput" placeholder="請輸入09開頭的電話號碼:共10位數字"
-        class="w-full p-3 border border-gray-300 rounded-md mb-4 text-lg" />
-      <button id="analyzeBtn"
-        class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded hover:bg-indigo-700 transition">
-        開始分析
-      </button>
+            <div id="phone-tab" class="tab-content">
+                <div class="input-section space-y-4">
+                    <h2 class="text-xl font-semibold text-indigo-700"><i class="fas fa-mobile-alt"></i> 手機號碼分析</h2>
+                    <div class="form-group">
+                        <label for="phone-number" class="block text-sm font-medium text-gray-700">手機號碼：</label>
+                        <input type="text" id="phone-number" placeholder="請輸入手機號碼 (09開頭，共10位數字)" maxlength="10"
+                            class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
+                    </div>
+                    <div class="button-group flex space-x-2">
+                        <button id="analyze-phone-btn"
+                            class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">手機號碼DNA分析</button>
+                        <button id="reset-phone-btn"
+                            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">重來一次</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="analysis-summary" class="bg-white p-6 rounded-lg shadow hidden">
+            <h2 class="text-xl font-semibold text-indigo-700 mb-3">🔍 分析摘要</h2>
+            <p class="text-gray-700" id="summary-text"></p>
+        </section>
+
+        <section id="dna-statistics" class="bg-white p-6 rounded-lg shadow hidden">
+            <h2 class="text-xl font-semibold text-indigo-700 mb-3">📊 DNA 統計結果</h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-1" id="statistics-list"></ul>
+        </section>
+
+        <section id="analysis-steps" class="hidden">
+            <div
+                class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                id="steps-grid">
+                </div>
+        </section>
     </div>
 
-    <!-- 分析結果區 -->
-    <section>
-      <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">分析結果</h2>
-      <div id="analysisOutput" class="space-y-4"></div>
-    </section>
+    <script>
+        const dnaMap = {
+            '天醫': [13, 27, 49, 68, 31, 72, 94, 86],
+            '生氣': [14, 28, 39, 67, 41, 82, 93, 76],
+            '延年': [19, 26, 34, 78, 91, 62, 43, 87],
+            '伏位': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 66, 77, 88, 99, 10, 20, 30, 40,
+                50, 60, 70, 80, 90, 51, 52, 53, 54, 55, 56, 57, 58, 59, 15, 25, 35, 45, 65, 75, 85, 95
+            ],
+            '六煞': [16, 29, 38, 47, 61, 92, 83, 74],
+            '禍害': [17, 23, 46, 89, 71, 32, 64, 98],
+            '絕命': [12, 37, 48, 69, 21, 73, 84, 96],
+            '五鬼': [18, 24, 36, 79, 81, 42, 63, 97],
+        };
 
-    <!-- 統計摘要區 -->
-    <section>
-      <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">主題統計</h2>
-      <textarea id="summaryOutput" readonly
-        class="w-full p-3 border border-gray-300 rounded-md text-base h-24"
-        placeholder="統計摘要會顯示在這裡..."></textarea>
-    </section>
+        const dnaColors = {
+            '天醫': 'text-green-700',
+            '生氣': 'text-blue-700',
+            '延年': 'text-purple-700',
+            '伏位': 'text-gray-600',
+            '六煞': 'text-yellow-700',
+            '禍害': 'text-orange-700',
+            '絕命': 'text-red-700',
+            '五鬼': 'text-pink-700',
+            // Specific colors for extended Fuyi, if desired, otherwise they will fall back to base
+            '伏位(天醫延伸)': 'text-green-800',
+            '伏位(生氣延伸)': 'text-blue-800',
+            '伏位(延年延伸)': 'text-purple-800',
+            '伏位(六煞延伸)': 'text-yellow-800',
+            '伏位(禍害延伸)': 'text-orange-800',
+            '伏位(絕命延伸)': 'text-red-800',
+            '伏位(五鬼延伸)': 'text-pink-800',
+        };
 
-    <!-- 手機號碼循環分析 -->
-    <section>
-      <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">手機號碼循環分析</h2>
-      <div id="cycleAnalysis" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-10 gap-4"></div>
-    </section>
-
-    <!-- 延伸分析 -->
-    <section>
-      <h2 class="text-xl font-semibold text-indigo-700 mt-6 mb-2">伏位主題延伸分析</h2>
-      <div id="extendAnalysis" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-10 gap-4"></div>
-    </section>
-  </div>
-
-  <script>
-    document.getElementById("analyzeBtn").addEventListener("click", () => {
-      const number = document.getElementById("phoneInput").value.trim();
-      if (number.length !== 10 || !/^\d+$/.test(number) || !number.startsWith("09")) {
-        alert("請輸入09開頭的電話號碼:共10位數字");
-        return;
-      }
-
-      const themes = {
-        天醫: [13, 27, 49, 68, 31, 72, 94, 86],
-        生氣: [14, 28, 39, 67, 41, 82, 93, 76],
-        延年: [19, 26, 34, 78, 91, 62, 43, 87],
-        伏位: [
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 66, 77, 88, 99, 10, 20, 30, 40,
-          50, 60, 70, 80, 90, 51, 52, 53, 54, 55, 56, 57, 58, 59, 15, 25, 35,
-          45, 65, 75, 85, 95,
-        ],
-        六煞: [16, 29, 38, 47, 61, 92, 83, 74],
-        禍害: [17, 23, 46, 89, 71, 32, 64, 98],
-        絶命: [12, 37, 48, 69, 21, 73, 84, 96],
-        五鬼: [18, 24, 36, 79, 81, 42, 63, 97],
-      };
-
-      const stats = {};
-      Object.keys(themes).forEach((key) => (stats[key] = 0));
-      const results = [];
-
-      for (let i = 0; i < number.length - 1; i++) {
-        const segment = number.substring(i, i + 2);
-        const value = parseInt(segment, 10);
-
-        let found = "無符合";
-        for (const [theme, values] of Object.entries(themes)) {
-          if (values.includes(value)) {
-            found = theme;
-            stats[theme]++;
-            break;
-          }
+        // Helper function to get DNA type
+        function getDnaType(num) {
+            for (const type in dnaMap) {
+                if (dnaMap[type].includes(num)) {
+                    return type;
+                }
+            }
+            return '未知'; // Should not happen with complete maps
         }
 
-        results.push({
-          step: i + 1,
-          comment: `第${i + 1}步`,
-          before: number.substring(0, i),
-          highlight: segment,
-          after: number.substring(i + 2),
-          value,
-          theme: found,
-        });
-      }
-
-      // 最後一位 + 0
-      const lastSegment = number[number.length - 1] + "0";
-      const value = parseInt(lastSegment, 10);
-      let found = "無符合";
-      for (const [theme, values] of Object.entries(themes)) {
-        if (values.includes(value)) {
-          found = theme;
-          stats[theme]++;
-          break;
+        // Helper function to extract base theme from extended Fuyi
+        function getBaseTheme(extendedFuyi) {
+            const match = extendedFuyi.match(/伏位\((.*?)\延伸\)/);
+            return match ? match[1] : extendedFuyi;
         }
-      }
-      results.push({ step: 10, comment: "第10步：往前循環接0", before: number.substring(0, 9), highlight: lastSegment, after: "", value, theme: found });
 
-      // 分析結果區
-      const container = document.getElementById("analysisOutput");
-      container.innerHTML = "";
-      const grid = document.createElement("div");
-      grid.className = "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4";
-      container.appendChild(grid);
 
-      results.forEach(({ step, comment, before, highlight, after, value, theme }) => {
-        const div = document.createElement("div");
-        div.className = "bg-indigo-50 p-4 rounded-md shadow-sm text-sm";
-        div.innerHTML = `<p class='text-sm text-gray-500 mb-1'>${comment}</p>
-                         <p><span class='tracking-widest'>${before}</span><span class='text-red-600 font-bold'>${highlight}</span><span class='tracking-widest'>${after}</span></p>
-                         <p><strong class='text-gray-800'>${value.toString().padStart(2, '0')}</strong>：<span class='text-emerald-700 font-semibold'>${theme}</span></p>`;
-        grid.appendChild(div);
-      });
+        document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
+        document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
 
-      // 統計摘要
-      const summary = [];
-      Object.entries(stats).forEach(([theme, count]) => {
-        if (count > 0) summary.push(`${theme}：${count}次`);
-      });
-      document.getElementById("summaryOutput").value = summary.length ? summary.join("；") : "所有組別皆無符合主題";
-
-      // 手機號碼循環分析
-      const cycleOutput = document.getElementById("cycleAnalysis");
-      cycleOutput.innerHTML = "";
-      results.forEach((r, i) => {
-        const div = document.createElement("div");
-        div.className = "bg-white rounded shadow p-2 text-center";
-        div.innerHTML = `<p class='font-bold text-indigo-600'>${i + 1}</p><p class='text-lg'>${r.highlight}</p><p>${r.theme}</p>`;
-        cycleOutput.appendChild(div);
-      });
-
-      // 伏位主題延伸分析
-      const extendOutput = document.getElementById("extendAnalysis");
-      extendOutput.innerHTML = "";
-
-      // 先定義我們要追蹤的主題群（排除伏位和無符合）
-      const mainThemes = ["天醫", "生氣", "延年", "六煞", "禍害", "絶命", "五鬼"];
-
-      let baseTheme = null; // 開始的主題（非伏位）
-      let fuweiCount = 0;   // 伏位累計數
-
-      for (let i = 0; i < results.length; i++) {
-        const { highlight, theme, step } = results[i];
-        if (theme === "伏位") {
-          // 如果之前有 baseTheme，伏位累計並輸出
-          if (baseTheme && fuweiCount < 9) {
-            fuweiCount++;
-            const div = document.createElement("div");
-            div.className = "bg-white rounded shadow p-2 text-center";
-            div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>伏位:${baseTheme}延伸</p>`;
-            extendOutput.appendChild(div);
-          } else {
-            // 如果沒有baseTheme就單純輸出伏位（可選，這裡忽略）
-            const div = document.createElement("div");
-            div.className = "bg-white rounded shadow p-2 text-center";
-            div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>伏位</p>`;
-            extendOutput.appendChild(div);
-          }
-        } else if (mainThemes.includes(theme)) {
-          // 遇到非伏位的主題，重置基底主題，重置伏位計數
-          baseTheme = theme;
-          fuweiCount = 0;
-          const div = document.createElement("div");
-          div.className = "bg-white rounded shadow p-2 text-center";
-          div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>${theme}</p>`;
-          extendOutput.appendChild(div);
-        } else {
-          // 無符合 或其他，重置 baseTheme 與計數
-          baseTheme = null;
-          fuweiCount = 0;
-          const div = document.createElement("div");
-          div.className = "bg-white rounded shadow p-2 text-center";
-          div.innerHTML = `<p class='font-bold text-indigo-600'>${step}</p><p class='text-lg'>${highlight}</p><p>${theme}</p>`;
-          extendOutput.appendChild(div);
+        // Resets UI and input field
+        function resetAnalysis() {
+            document.getElementById('phone-number').value = '';
+            document.getElementById('analysis-summary').classList.add('hidden');
+            document.getElementById('dna-statistics').classList.add('hidden');
+            document.getElementById('analysis-steps').classList.add('hidden');
+            document.getElementById('summary-text').innerHTML = '';
+            document.getElementById('statistics-list').innerHTML = '';
+            document.getElementById('steps-grid').innerHTML = '';
         }
-      }
-    });
-  </script>
+
+        function analyzePhoneNumber() {
+            const phoneNumber = document.getElementById('phone-number').value.trim();
+
+            // Rule 1, 2: Phone number validation
+            if (phoneNumber.length !== 10 || !phoneNumber.startsWith('09') || !/^\d+$/.test(phoneNumber)) {
+                alert('請輸入有效的10位手機號碼，必須以09開頭！');
+                resetAnalysis(); // Reset if input is invalid
+                return;
+            }
+
+            // Show sections
+            document.getElementById('analysis-summary').classList.remove('hidden');
+            document.getElementById('dna-statistics').classList.remove('hidden');
+            document.getElementById('analysis-steps').classList.remove('hidden');
+
+            const analysisResults = [];
+            const dnaCounts = {};
+            let i = 0; // Current position (index) in the phone number string
+            let step = 1; // Current step number for display
+            let previousDnaResult = null; // To track for Fuyi extensions, stores the actual type and its base if extended
+
+            // Loop through the phone number
+            while (i < phoneNumber.length - 1) {
+                let currentNumbers = ''; // The numbers being analyzed (e.g., "12", "153", "1554")
+                let dnaType = '';
+                let explanation = '';
+                let nextIndex = i + 1; // Default next starting index for the loop
+
+                // Rule 6: Handle '5' bridge cases (digits from position 1 to 8)
+                // Check if the current number (phoneNumber[i]) is followed by one or more '5's and then a non-'5' digit.
+                if (phoneNumber[i + 1] === '5' && i + 2 <= phoneNumber.length) { // Check for 'X5' where X is phoneNumber[i]
+                    let bridgeLength = 1;
+                    // Find out how many consecutive '5's there are
+                    while (i + 1 + bridgeLength < phoneNumber.length && phoneNumber[i + 1 + bridgeLength] === '5') {
+                        bridgeLength++;
+                    }
+
+                    // If a non-'5' digit exists after the bridge
+                    if (i + 1 + bridgeLength < phoneNumber.length) {
+                        const targetDigit = phoneNumber[i + 1 + bridgeLength];
+                        const bridgedNumber = parseInt(phoneNumber[i] + targetDigit, 10);
+                        dnaType = getDnaType(bridgedNumber);
+                        currentNumbers = phoneNumber.substring(i, i + 1 + bridgeLength + 1); // e.g., "153", "1554"
+                        explanation = `(因為${'5'.repeat(bridgeLength)}是穚樑)`;
+                        nextIndex = i + 1 + bridgeLength; // Jump past the '5's
+                    } else {
+                        // Rule 6 (2): '5' at the 9th position (last pair)
+                        // If '5' is the last digit in the pair and no non-'5' follows, treat as normal pair
+                        // For example, if number ends in 'X5', and we are analyzing 'X5', it's a regular pair.
+                        dnaType = getDnaType(parseInt(phoneNumber.substring(i, i + 2), 10));
+                        currentNumbers = phoneNumber.substring(i, i + 2);
+                        nextIndex = i + 1;
+                    }
+                } else {
+                    // Rule 3: General case (no '5' bridge)
+                    dnaType = getDnaType(parseInt(phoneNumber.substring(i, i + 2), 10));
+                    currentNumbers = phoneNumber.substring(i, i + 2);
+                    nextIndex = i + 1;
+                }
+
+                let actualDnaType = dnaType;
+                let baseDnaForCount = dnaType; // For statistics
+
+                // Rule 7: Fuyi extension logic
+                if (dnaType === '伏位' && previousDnaResult) {
+                    const prevBaseTheme = getBaseTheme(previousDnaResult.type);
+                    if (prevBaseTheme !== '伏位' && prevBaseTheme !== '未知') { // Only extend if previous was not plain Fuyi or unknown
+                        actualDnaType = `伏位(${prevBaseTheme}延伸)`;
+                        baseDnaForCount = prevBaseTheme; // Count it under the base theme
+                    }
+                }
+
+                // Store result for rendering
+                analysisResults.push({
+                    step: step,
+                    original: phoneNumber,
+                    highlighted: currentNumbers,
+                    pair: parseInt(currentNumbers.replace(/5/g, '')), // Get the actual number used for analysis (e.g., 13 from 153)
+                    type: actualDnaType,
+                    explanation: explanation,
+                    startIndex: i,
+                    endIndex: i + currentNumbers.length - 1 // End index of the highlighted part
+                });
+
+                // Update previousDnaResult for the next iteration
+                previousDnaResult = { type: actualDnaType, pair: currentNumbers };
+
+                // Update DNA counts
+                dnaCounts[baseDnaForCount] = (dnaCounts[baseDnaForCount] || 0) + 1;
+
+                i = nextIndex;
+                step++;
+            }
+
+            renderResults(phoneNumber, analysisResults, dnaCounts);
+        }
+
+
+        function renderResults(phoneNumber, results, dnaCounts) {
+            // --- Analysis Summary ---
+            const summaryText = document.getElementById('summary-text');
+            let summaryHtml = `手機號碼 <span class="font-bold text-indigo-900">${phoneNumber}</span>分析結果：<br>`;
+            summaryHtml += results.map(r => {
+                let displayPair = r.pair;
+                // If it was a bridged number, show the original highlighted part, not just the two end digits.
+                if (r.explanation.includes('穚樑')) {
+                    displayPair = r.highlighted;
+                } else {
+                    // For regular pairs, ensure it's a two-digit string (e.g., 09)
+                    displayPair = r.highlighted.length === 2 ? r.highlighted : String(r.pair);
+                }
+
+                const colorClass = dnaColors[r.type] || 'text-gray-800';
+                return `<span class="${colorClass} font-semibold">${displayPair}${r.explanation ? ` ${r.explanation}` : ''}</span>: ${r.type}`;
+            }).join('、 ');
+            summaryText.innerHTML = summaryHtml;
+
+            // --- DNA Statistics ---
+            const statisticsList = document.getElementById('statistics-list');
+            statisticsList.innerHTML = '';
+            // Sort keys for consistent output
+            const sortedDnaTypes = Object.keys(dnaCounts).sort((a, b) => {
+                const order = ['天醫', '生氣', '延年', '伏位', '六煞', '禍害', '絕命', '五鬼'];
+                return order.indexOf(a) - order.indexOf(b);
+            });
+
+            sortedDnaTypes.forEach(type => {
+                const count = dnaCounts[type];
+                const colorClass = dnaColors[type] || 'text-gray-800';
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `共出現 <span class="font-bold ${colorClass}">${count}</span> 次${type}`;
+                statisticsList.appendChild(listItem);
+            });
+
+            // --- Analysis Steps Grid ---
+            const stepsGrid = document.getElementById('steps-grid');
+            stepsGrid.innerHTML = '';
+
+            results.forEach(result => {
+                const stepDiv = document.createElement('div');
+                let bgColorClass = 'bg-indigo-50';
+                // Highlight '絕命' and '禍害' for visual emphasis
+                if (result.type === '絕命' || result.type.includes('禍害')) {
+                    bgColorClass = 'bg-red-100';
+                }
+
+                stepDiv.className = `p-4 ${bgColorClass} rounded-md shadow-sm`;
+
+                let displayedNumber = phoneNumber;
+                const startIndex = result.startIndex;
+                const endIndex = result.endIndex;
+
+                // Highlight the numbers in the full phone string for display
+                displayedNumber =
+                    phoneNumber.substring(0, startIndex) +
+                    `<span class="text-red-600 font-bold">${phoneNumber.substring(startIndex, endIndex + 1)}</span>` +
+                    phoneNumber.substring(endIndex + 1);
+
+                const colorClass = dnaColors[result.type] || 'text-gray-800';
+
+                // Display the number combination that was actually analyzed (e.g., 64 from 654)
+                let analyzedPairDisplay = result.highlighted;
+                if (result.explanation.includes('穚樑')) {
+                    // For bridged numbers, display the original first and last digits of the highlighted sequence
+                    analyzedPairDisplay = result.highlighted[0] + result.highlighted[result.highlighted.length - 1];
+                }
+
+                stepDiv.innerHTML = `
+                    <p class="text-sm text-gray-500 mb-1">第${result.step}步：${displayedNumber}</p>
+                    <p><strong class="text-gray-800">${analyzedPairDisplay}</strong>: <span class="${colorClass} font-semibold">${result.type}${result.explanation ? ` ${result.explanation}` : ''}</span></p>
+                `;
+                stepsGrid.appendChild(stepDiv);
+            });
+        }
+    </script>
 </body>
 
 </html>
