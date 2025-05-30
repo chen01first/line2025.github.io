@@ -13,14 +13,14 @@
 </head>
 
 <body class="bg-gray-100 text-gray-800">
-    <div class="max-w-5xl mx-auto p-4 space-y-6">
+    <div class="max-w-full sm:max-w-xl md:max-w-3xl lg:max-w-5xl mx-auto p-4 space-y-6">
         <header class="text-center">
-            <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
             <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
         </header>
 
         <div class="bg-white p-6 rounded-lg shadow">
-            <div class="tabs flex space-x-2 mb-4">
+            <div class="tabs flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-4">
                 <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
                 <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">有圖有真相</button>
                 <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享更多人</button>
@@ -34,7 +34,7 @@
                         <input type="text" id="phone-number" placeholder="請輸入手機號碼 (09開頭，共10位數字)" maxlength="10"
                             class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
                     </div>
-                    <div class="button-group flex space-x-2">
+                    <div class="button-group flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <button id="analyze-phone-btn"
                             class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">手機號碼DNA分析</button>
                         <button id="reset-phone-btn"
@@ -55,16 +55,14 @@
         </section>
 
         <section id="analysis-steps" class="hidden">
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+            <div
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
                 id="steps-grid">
             </div>
         </section>
     </div>
 
     <script>
-
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwEIIyn4L0cXe4-NY82QYLhqf0zSApgQlAdl2MX6zkUlcZr8wbw4-el1DSgvZ0VU6Ob/exec'; // <-- 替換為實際的 URL
-
         // Mapping for DNA colors (can stay on frontend for rendering)
         const dnaColors = {
             '天醫': 'text-green-700',
@@ -84,6 +82,9 @@
             '伏位(絕命延伸)': 'text-red-800',
             '伏位(五鬼延伸)': 'text-pink-800',
         };
+
+        // 這個 URL 必須是您部署在 Google Apps Script 的 Web App URL (doPost 的端點)
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwEIIyn4L0cXe4-NY82QYLhqf0zSApgQlAdl2MX6zkUlcZr8wbw4-el1DSgvZ0VU6Ob/exec'; // <-- **請務必替換成您實際部署的 URL**
 
         document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
         document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
@@ -115,18 +116,27 @@
             document.getElementById('analysis-steps').classList.remove('hidden');
 
             try {
-                // Call Google Apps Script backend function
-                const results = await google.script.run
-                    .withSuccessHandler(renderResults)
-                    .withFailureHandler(error => {
-                        console.error("Backend error:", error);
-                        alert("分析失敗，請稍後再試。");
-                        resetAnalysis();
-                    })
-                    .performDnaAnalysis(phoneNumber);
+                // *** 這裡是被替換的關鍵部分 ***
+                const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST', // 必須是 POST，因為後端是 doPost
+                    headers: {
+                        'Content-Type': 'application/json', // 告訴後端我們發送的是 JSON
+                    },
+                    body: JSON.stringify({ phoneNumber: phoneNumber }), // 將數據轉換為 JSON 字串
+                });
+
+                // 檢查響應狀態碼
+                if (!response.ok) { // 如果響應狀態碼不是 2xx (例如 400, 500)
+                    const errorData = await response.json(); // 嘗試解析後端返回的錯誤 JSON
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json(); // 解析後端返回的 JSON 數據
+                renderResults(data); // 成功後渲染結果
+
             } catch (e) {
-                console.error("Frontend error calling script.run:", e);
-                alert("前端呼叫後端服務時發生錯誤。");
+                console.error("Error calling backend API:", e);
+                alert("分析失敗，請稍後再試。錯誤詳情：" + e.message);
                 resetAnalysis();
             }
         }
