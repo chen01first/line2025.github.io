@@ -1,187 +1,212 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>命理造浪學院</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f8f8;
-      color: #333;
-    }
-    header {
-      background-color: #673ab7;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      background-color: #9575cd;
-    }
-    nav a {
-      color: white;
-      padding: 1rem;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    nav a:hover {
-      background-color: #7e57c2;
-    }
-    .hero {
-      background-image: url('https://i.imgur.com/yUTVnGH.jpg');
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 4rem 1rem;
-      text-align: center;
-    }
-    .hero h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-    .hero p {
-      font-size: 1.2rem;
-    }
-    .content {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      padding: 2rem;
-    }
-    .card {
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    form {
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      margin: 2rem;
-    }
-    form h2 {
-      margin-top: 0;
-    }
-    form label {
-      display: block;
-      margin-top: 1rem;
-    }
-    form input, form textarea {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    form button {
-      margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
-      background-color: #673ab7;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    form button:hover {
-      background-color: #5e35b1;
-    }
-    footer {
-      background-color: #512da8;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      margin-top: 2rem;
-    }
-    @media (max-width: 600px) {
-      .hero h1 {
-        font-size: 2rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>蔡老師數字DNA分析工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Optional: Add any custom CSS here if not handled by Tailwind */
+    </style>
 </head>
-<body>
-  <header>
-    <h1>命理造浪學院</h1>
-    <p>用玄學點亮人生，開啟智慧之門</p>
-  </header>
-  <nav>
-    <a href="#">八字命盤</a>
-    <a href="#">紫微斗數</a>
-    <a href="#">塔羅占卜</a>
-    <a href="#">風水佈局</a>
-    <a href="#">線上課程</a>
-    <a href="#">命理老師介紹</a>
-    <a href="#register">註冊</a>
-    <a href="#contact">聯絡我們</a>
-  </nav>
-  <section class="hero">
-    <h1>探索命運的奧秘</h1>
-    <p>透過命理知識，看清自己的人生方向</p>
-  </section>
-  <section class="content">
-    <div class="card">
-      <h2>八字入門</h2>
-      <p>學會看懂天干地支，了解自己的命格與運勢。</p>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-5xl mx-auto p-4 space-y-6">
+        <header class="text-center">
+            <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
+            <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
+        </header>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="tabs flex space-x-2 mb-4">
+                <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
+                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">有圖有真相</button>
+                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享更多人</button>
+            </div>
+
+            <div id="phone-tab" class="tab-content">
+                <div class="input-section space-y-4">
+                    <h2 class="text-xl font-semibold text-indigo-700"><i class="fas fa-mobile-alt"></i> 手機號碼分析</h2>
+                    <div class="form-group">
+                        <label for="phone-number" class="block text-sm font-medium text-gray-700">手機號碼：</label>
+                        <input type="text" id="phone-number" placeholder="請輸入手機號碼 (09開頭，共10位數字)" maxlength="10"
+                            class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
+                    </div>
+                    <div class="button-group flex space-x-2">
+                        <button id="analyze-phone-btn"
+                            class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">手機號碼DNA分析</button>
+                        <button id="reset-phone-btn"
+                            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">重來一次</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="analysis-summary" class="bg-white p-6 rounded-lg shadow hidden">
+            <h2 class="text-xl font-semibold text-indigo-700 mb-3">🔍 分析摘要</h2>
+            <p class="text-gray-700" id="summary-text"></p>
+        </section>
+
+        <section id="dna-statistics" class="bg-white p-6 rounded-lg shadow hidden">
+            <h2 class="text-xl font-semibold text-indigo-700 mb-3">📊 DNA 統計結果</h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-1" id="statistics-list"></ul>
+        </section>
+
+        <section id="analysis-steps" class="hidden">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                id="steps-grid">
+            </div>
+        </section>
     </div>
-    <div class="card">
-      <h2>塔羅教學</h2>
-      <p>牌卡指引你的內在答案，從混亂中找到方向。</p>
-    </div>
-    <div class="card">
-      <h2>風水實作</h2>
-      <p>調整居家佈局，讓運勢提升、事業順利。</p>
-    </div>
-    <div class="card">
-      <h2>命理師專訪</h2>
-      <p>深入訪談命理專家，揭開玄學背後的智慧。</p>
-    </div>
-  </section>
 
-  <section id="register">
-    <form>
-      <h2>註冊加入我們</h2>
-      <label for="name">姓名</label>
-      <input type="text" id="name" name="name" required>
+    <script>
+        // Mapping for DNA colors (can stay on frontend for rendering)
+        const dnaColors = {
+            '天醫': 'text-green-700',
+            '生氣': 'text-blue-700',
+            '延年': 'text-purple-700',
+            '伏位': 'text-gray-600',
+            '六煞': 'text-yellow-700',
+            '禍害': 'text-orange-700',
+            '絕命': 'text-red-700',
+            '五鬼': 'text-pink-700',
+            // Specific colors for extended Fuyi, if desired, otherwise they will fall back to base
+            '伏位(天醫延伸)': 'text-green-800',
+            '伏位(生氣延伸)': 'text-blue-800',
+            '伏位(延年延伸)': 'text-purple-800',
+            '伏位(六煞延伸)': 'text-yellow-800',
+            '伏位(禍害延伸)': 'text-orange-800',
+            '伏位(絕命延伸)': 'text-red-800',
+            '伏位(五鬼延伸)': 'text-pink-800',
+        };
 
-      <label for="email">電子郵件</label>
-      <input type="email" id="email" name="email" required>
+        document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
+        document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
 
-      <label for="password">密碼</label>
-      <input type="password" id="password" name="password" required>
+        // Resets UI and input field
+        function resetAnalysis() {
+            document.getElementById('phone-number').value = '';
+            document.getElementById('analysis-summary').classList.add('hidden');
+            document.getElementById('dna-statistics').classList.add('hidden');
+            document.getElementById('analysis-steps').classList.add('hidden');
+            document.getElementById('summary-text').innerHTML = '';
+            document.getElementById('statistics-list').innerHTML = '';
+            document.getElementById('steps-grid').innerHTML = '';
+        }
 
-      <button type="submit">註冊</button>
-    </form>
-  </section>
+        async function analyzePhoneNumber() {
+            const phoneNumber = document.getElementById('phone-number').value.trim();
 
-  <section id="contact">
-    <form>
-      <h2>聯絡我們</h2>
-      <label for="contact-name">姓名</label>
-      <input type="text" id="contact-name" name="contact-name" required>
+            // Rule 1, 2: Phone number validation (client-side for immediate feedback)
+            if (phoneNumber.length !== 10 || !phoneNumber.startsWith('09') || !/^\d+$/.test(phoneNumber)) {
+                alert('請輸入有效的10位手機號碼，必須以09開頭！');
+                resetAnalysis();
+                return;
+            }
 
-      <label for="contact-email">電子郵件</label>
-      <input type="email" id="contact-email" name="contact-email" required>
+            // Show sections
+            document.getElementById('analysis-summary').classList.remove('hidden');
+            document.getElementById('dna-statistics').classList.remove('hidden');
+            document.getElementById('analysis-steps').classList.remove('hidden');
 
-      <label for="message">留言內容</label>
-      <textarea id="message" name="message" rows="5" required></textarea>
+            try {
+                // Call Google Apps Script backend function
+                const results = await google.script.run
+                    .withSuccessHandler(renderResults)
+                    .withFailureHandler(error => {
+                        console.error("Backend error:", error);
+                        alert("分析失敗，請稍後再試。");
+                        resetAnalysis();
+                    })
+                    .performDnaAnalysis(phoneNumber);
+            } catch (e) {
+                console.error("Frontend error calling script.run:", e);
+                alert("前端呼叫後端服務時發生錯誤。");
+                resetAnalysis();
+            }
+        }
 
-      <button type="submit">送出</button>
-    </form>
-  </section>
+        function renderResults(data) {
+            const { phoneNumber, analysisResults, dnaCounts } = data;
 
-  <footer>
-    &copy; 2025 命理造浪學院 | 心靈與實踐並重的命理平台
-  </footer>
+            // --- Analysis Summary ---
+            const summaryText = document.getElementById('summary-text');
+            let summaryHtml = `手機號碼 <span class="font-bold text-indigo-900">${phoneNumber}</span>分析結果：<br>`;
+            summaryHtml += analysisResults.map(r => {
+                let displayPair = r.pair;
+                // If it was a bridged number, show the original highlighted part, not just the two end digits.
+                if (r.explanation.includes('穚樑')) {
+                    displayPair = r.highlighted;
+                } else {
+                    // For regular pairs, ensure it's a two-digit string (e.g., 09)
+                    displayPair = r.highlighted.length === 2 ? r.highlighted : String(r.pair);
+                }
+
+                const colorClass = dnaColors[r.type] || 'text-gray-800';
+                return `<span class="${colorClass} font-semibold">${displayPair}${r.explanation ? ` ${r.explanation}` : ''}</span>: ${r.type}`;
+            }).join('、 ');
+            summaryText.innerHTML = summaryHtml;
+
+            // --- DNA Statistics ---
+            const statisticsList = document.getElementById('statistics-list');
+            statisticsList.innerHTML = '';
+            // Sort keys for consistent output
+            const sortedDnaTypes = Object.keys(dnaCounts).sort((a, b) => {
+                const order = ['天醫', '生氣', '延年', '伏位', '六煞', '禍害', '絕命', '五鬼'];
+                return order.indexOf(a) - order.indexOf(b);
+            });
+
+            sortedDnaTypes.forEach(type => {
+                const count = dnaCounts[type];
+                const colorClass = dnaColors[type] || 'text-gray-800';
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `共出現 <span class="font-bold ${colorClass}">${count}</span> 次${type}`;
+                statisticsList.appendChild(listItem);
+            });
+
+            // --- Analysis Steps Grid ---
+            const stepsGrid = document.getElementById('steps-grid');
+            stepsGrid.innerHTML = '';
+
+            analysisResults.forEach(result => {
+                const stepDiv = document.createElement('div');
+                let bgColorClass = 'bg-indigo-50';
+                // Highlight '絕命' and '禍害' for visual emphasis
+                if (result.type === '絕命' || result.type.includes('禍害')) {
+                    bgColorClass = 'bg-red-100';
+                }
+
+                stepDiv.className = `p-4 ${bgColorClass} rounded-md shadow-sm`;
+
+                let displayedNumber = phoneNumber;
+                const startIndex = result.startIndex;
+                const endIndex = result.endIndex;
+
+                // Highlight the numbers in the full phone string for display
+                displayedNumber =
+                    phoneNumber.substring(0, startIndex) +
+                    `<span class="text-red-600 font-bold">${phoneNumber.substring(startIndex, endIndex + 1)}</span>` +
+                    phoneNumber.substring(endIndex + 1);
+
+                const colorClass = dnaColors[result.type] || 'text-gray-800';
+
+                // Display the number combination that was actually analyzed (e.g., 64 from 654)
+                let analyzedPairDisplay = result.highlighted;
+                if (result.explanation.includes('穚樑')) {
+                    // For bridged numbers, display the original first and last digits of the highlighted sequence
+                    analyzedPairDisplay = result.highlighted[0] + result.highlighted[result.highlighted.length - 1];
+                }
+
+                stepDiv.innerHTML = `
+                    <p class="text-sm text-gray-500 mb-1">第${result.step}步：${displayedNumber}</p>
+                    <p><strong class="text-gray-800">${analyzedPairDisplay}</strong>: <span class="${colorClass} font-semibold">${result.type}${result.explanation ? ` ${result.explanation}` : ''}</span></p>
+                `;
+                stepsGrid.appendChild(stepDiv);
+            });
+        }
+    </script>
 </body>
+
 </html>
