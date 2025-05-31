@@ -1,225 +1,105 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>蔡老師數字DNA分析工具</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apps Script Fetch Test</title>
     <style>
-        /* Optional: Add any custom CSS here if not handled by Tailwind */
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            white-space: pre-wrap; /* 保持換行和空格 */
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 200px;
+            margin-right: 10px;
+        }
     </style>
 </head>
+<body>
+    <h1>Google Apps Script Fetch 測試</h1>
 
-<body class="bg-gray-100 text-gray-800">
-    <div class="max-w-full sm:max-w-xl md:max-w-3xl lg:max-w-5xl mx-auto p-4 space-y-6">
-        <header class="text-center">
-            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
-            <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
-        </header>
+    <p>
+        此頁面將使用 `fetch` API 向 Google Apps Script Web App 發送請求並顯示回傳的資料。
+    </p>
 
-        <div class="bg-white p-6 rounded-lg shadow">
-            <div class="tabs flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-4">
-                <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
-                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">有圖有真相</button>
-                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享更多人</button>
-            </div>
+    <label for="nameInput">輸入您的名字 (用於 GET 請求):</label>
+    <input type="text" id="nameInput" value="TestUser">
+    <button id="fetchGetBtn">發送 GET 請求</button>
+    <button id="fetchPostBtn">發送 POST 請求</button>
 
-            <div id="phone-tab" class="tab-content">
-                <div class="input-section space-y-4">
-                    <h2 class="text-xl font-semibold text-indigo-700"><i class="fas fa-mobile-alt"></i> 手機號碼分析</h2>
-                    <div class="form-group">
-                        <label for="phone-number" class="block text-sm font-medium text-gray-700">手機號碼：</label>
-                        <input type="text" id="phone-number" placeholder="請輸入手機號碼 (09開頭，共10位數字)" maxlength="10"
-                            class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
-                    </div>
-                    <div class="button-group flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <button id="analyze-phone-btn"
-                            class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">手機號碼DNA分析</button>
-                        <button id="reset-phone-btn"
-                            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">重來一次</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <section id="analysis-summary" class="bg-white p-6 rounded-lg shadow hidden">
-            <h2 class="text-xl font-semibold text-indigo-700 mb-3">🔍 分析摘要</h2>
-            <p class="text-gray-700" id="summary-text"></p>
-        </section>
-
-        <section id="dna-statistics" class="bg-white p-6 rounded-lg shadow hidden">
-            <h2 class="text-xl font-semibold text-indigo-700 mb-3">📊 DNA 統計結果</h2>
-            <ul class="list-disc list-inside text-gray-700 space-y-1" id="statistics-list"></ul>
-        </section>
-
-        <section id="analysis-steps" class="hidden">
-            <div
-                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-                id="steps-grid">
-            </div>
-        </section>
-    </div>
+    <h2>伺服器回應:</h2>
+    <pre id="response">等待回應...</pre>
 
     <script>
-        // Mapping for DNA colors (can stay on frontend for rendering)
-        const dnaColors = {
-            '天醫': 'text-green-700',
-            '生氣': 'text-blue-700',
-            '延年': 'text-purple-700',
-            '伏位': 'text-gray-600',
-            '六煞': 'text-yellow-700',
-            '禍害': 'text-orange-700',
-            '絕命': 'text-red-700',
-            '五鬼': 'text-pink-700',
-            // Specific colors for extended Fuyi, if desired, otherwise they will fall back to base
-            '伏位(天醫延伸)': 'text-green-800',
-            '伏位(生氣延伸)': 'text-blue-800',
-            '伏位(延年延伸)': 'text-purple-800',
-            '伏位(六煞延伸)': 'text-yellow-800',
-            '伏位(禍害延伸)': 'text-orange-800',
-            '伏位(絕命延伸)': 'text-red-800',
-            '伏位(五鬼延伸)': 'text-pink-800',
-        };
+        // 將此 URL 替換為您部署的 Google Apps Script Web App URL
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxauOL69egn7zgX5Pr8XYKWCH-qiqBfCn3ASUUcq95STt-4yiPeSl7nw8Qg6FK0POef/exec'; // <-- 重要：請替換為您的實際 URL
 
-        // 這個 URL 必須是您部署在 Google Apps Script 的 Web App URL (doPost 的端點)
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx7NWM1hf2l9Vb3-7hJaFTSkOsWRIbptcyXTOQYAUDFmA47JqR-4J6SrtNNQBqPQx-P/exec'; // <-- **請務必替換成您實際部署的 URL**
+        const responseDiv = document.getElementById('response');
+        const nameInput = document.getElementById('nameInput');
+        const fetchGetBtn = document.getElementById('fetchGetBtn');
+        const fetchPostBtn = document.getElementById('fetchPostBtn');
 
-        document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
-        document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
+        // 處理 GET 請求
+        fetchGetBtn.addEventListener('click', async () => {
+            const name = nameInput.value;
+            // 將查詢參數添加到 URL
+            const urlWithParams = `${APPS_SCRIPT_WEB_APP_URL}?name=${encodeURIComponent(name)}`;
 
-        // Resets UI and input field
-        function resetAnalysis() {
-            document.getElementById('phone-number').value = '';
-            document.getElementById('analysis-summary').classList.add('hidden');
-            document.getElementById('dna-statistics').classList.add('hidden');
-            document.getElementById('analysis-steps').classList.add('hidden');
-            document.getElementById('summary-text').innerHTML = '';
-            document.getElementById('statistics-list').innerHTML = '';
-            document.getElementById('steps-grid').innerHTML = '';
-        }
-
-        async function analyzePhoneNumber() {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
-
-            // Rule 1, 2: Phone number validation (client-side for immediate feedback)
-            if (phoneNumber.length !== 10 || !phoneNumber.startsWith('09') || !/^\d+$/.test(phoneNumber)) {
-                alert('請輸入有效的10位手機號碼，必須以09開頭！');
-                resetAnalysis();
-                return;
-            }
-
-            // Show sections
-            document.getElementById('analysis-summary').classList.remove('hidden');
-            document.getElementById('dna-statistics').classList.remove('hidden');
-            document.getElementById('analysis-steps').classList.remove('hidden');
-
+            responseDiv.textContent = '正在發送 GET 請求...';
             try {
-                // *** 這裡是被替換的關鍵部分 ***
+                const response = await fetch(urlWithParams);
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+                }
+                const data = await response.json();
+                responseDiv.textContent = 'GET 請求成功！\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'GET 請求失敗: ' + error.message;
+                console.error('GET 請求錯誤:', error);
+            }
+        });
+
+        // 處理 POST 請求
+        fetchPostBtn.addEventListener('click', async () => {
+            const name = nameInput.value;
+            const postData = {
+                name: name,
+                client: 'HTML Fetch Example',
+                timestamp: new Date().toISOString()
+            };
+
+            responseDiv.textContent = '正在發送 POST 請求...';
+            try {
                 const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
-                    method: 'POST', // 必須是 POST，因為後端是 doPost
+                    method: 'POST', // 指定為 POST 請求
                     headers: {
-                        'Content-Type': 'application/json', // 告訴後端我們發送的是 JSON
+                        'Content-Type': 'application/json' // 告知伺服器發送的是 JSON 資料
                     },
-                    body: JSON.stringify({ phoneNumber: phoneNumber }), // 將數據轉換為 JSON 字串
+                    body: JSON.stringify(postData) // 將 JavaScript 物件轉換為 JSON 字串
                 });
 
-                // 檢查響應狀態碼
-                if (!response.ok) { // 如果響應狀態碼不是 2xx (例如 400, 500)
-                    const errorData = await response.json(); // 嘗試解析後端返回的錯誤 JSON
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
                 }
-
-                const data = await response.json(); // 解析後端返回的 JSON 數據
-                renderResults(data); // 成功後渲染結果
-
-            } catch (e) {
-                console.error("Error calling backend API:", e);
-                alert("分析失敗，請稍後再試。錯誤詳情：" + e.message);
-                resetAnalysis();
+                const data = await response.json();
+                responseDiv.textContent = 'POST 請求成功！\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'POST 請求失敗: ' + error.message;
+                console.error('POST 請求錯誤:', error);
             }
-        }
-
-        function renderResults(data) {
-            const { phoneNumber, analysisResults, dnaCounts } = data;
-
-            // --- Analysis Summary ---
-            const summaryText = document.getElementById('summary-text');
-            let summaryHtml = `手機號碼 <span class="font-bold text-indigo-900">${phoneNumber}</span>分析結果：<br>`;
-            summaryHtml += analysisResults.map(r => {
-                let displayPair = r.pair;
-                // If it was a bridged number, show the original highlighted part, not just the two end digits.
-                if (r.explanation.includes('穚樑')) {
-                    displayPair = r.highlighted;
-                } else {
-                    // For regular pairs, ensure it's a two-digit string (e.g., 09)
-                    displayPair = r.highlighted.length === 2 ? r.highlighted : String(r.pair);
-                }
-
-                const colorClass = dnaColors[r.type] || 'text-gray-800';
-                return `<span class="${colorClass} font-semibold">${displayPair}${r.explanation ? ` ${r.explanation}` : ''}</span>: ${r.type}`;
-            }).join('、 ');
-            summaryText.innerHTML = summaryHtml;
-
-            // --- DNA Statistics ---
-            const statisticsList = document.getElementById('statistics-list');
-            statisticsList.innerHTML = '';
-            // Sort keys for consistent output
-            const sortedDnaTypes = Object.keys(dnaCounts).sort((a, b) => {
-                const order = ['天醫', '生氣', '延年', '伏位', '六煞', '禍害', '絕命', '五鬼'];
-                return order.indexOf(a) - order.indexOf(b);
-            });
-
-            sortedDnaTypes.forEach(type => {
-                const count = dnaCounts[type];
-                const colorClass = dnaColors[type] || 'text-gray-800';
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `共出現 <span class="font-bold ${colorClass}">${count}</span> 次${type}`;
-                statisticsList.appendChild(listItem);
-            });
-
-            // --- Analysis Steps Grid ---
-            const stepsGrid = document.getElementById('steps-grid');
-            stepsGrid.innerHTML = '';
-
-            analysisResults.forEach(result => {
-                const stepDiv = document.createElement('div');
-                let bgColorClass = 'bg-indigo-50';
-                // Highlight '絕命' and '禍害' for visual emphasis
-                if (result.type === '絕命' || result.type.includes('禍害')) {
-                    bgColorClass = 'bg-red-100';
-                }
-
-                stepDiv.className = `p-4 ${bgColorClass} rounded-md shadow-sm`;
-
-                let displayedNumber = phoneNumber;
-                const startIndex = result.startIndex;
-                const endIndex = result.endIndex;
-
-                // Highlight the numbers in the full phone string for display
-                displayedNumber =
-                    phoneNumber.substring(0, startIndex) +
-                    `<span class="text-red-600 font-bold">${phoneNumber.substring(startIndex, endIndex + 1)}</span>` +
-                    phoneNumber.substring(endIndex + 1);
-
-                const colorClass = dnaColors[result.type] || 'text-gray-800';
-
-                // Display the number combination that was actually analyzed (e.g., 64 from 654)
-                let analyzedPairDisplay = result.highlighted;
-                if (result.explanation.includes('穚樑')) {
-                    // For bridged numbers, display the original first and last digits of the highlighted sequence
-                    analyzedPairDisplay = result.highlighted[0] + result.highlighted[result.highlighted.length - 1];
-                }
-
-                stepDiv.innerHTML = `
-                    <p class="text-sm text-gray-500 mb-1">第${result.step}步：${displayedNumber}</p>
-                    <p><strong class="text-gray-800">${analyzedPairDisplay}</strong>: <span class="${colorClass} font-semibold">${result.type}${result.explanation ? ` ${result.explanation}` : ''}</span></p>
-                `;
-                stepsGrid.appendChild(stepDiv);
-            });
-        }
+        });
     </script>
 </body>
-
 </html>
