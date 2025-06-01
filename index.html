@@ -1,100 +1,127 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>蔡老師數字DNA分析工具 - 簡化測試</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蔡老師數字DNA分析工具 - 手機號碼回傳測試V_003</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* 您可以在這裡添加自定義的 CSS 樣式 */
+        body {
+            background-color: #f0f4f8; /* 淺灰色背景 */
+        }
+        .container {
+            max-width: 600px;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* 藍紫色 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* 深一點的藍紫色 */
+        }
+        .result-box {
+            background-color: #e0f2f7; /* 淺藍色背景 */
+            border-left: 4px solid #0ea5e9; /* 藍色邊框 */
+        }
+        .result-box pre {
+            white-space: pre-wrap; /* 預格式化文本自動換行 */
+            word-wrap: break-word; /* 長單詞換行 */
+        }
+    </style>
 </head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼DNA分析工具</h1>
+        <p class="text-center text-gray-600 mb-8">輸入手機號碼，測試後端回傳功能。</p>
 
-<body class="bg-gray-100 text-gray-800">
-    <div class="max-w-5xl mx-auto p-4 space-y-6">
-        <header class="text-center">
-            <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具 - 簡化測試</h1>
-            <p class="text-gray-600 mt-2">僅測試前後端連線</p>
-        </header>
-
-        <div class="bg-white p-6 rounded-lg shadow">
-            <div class="input-section space-y-4">
-                <h2 class="text-xl font-semibold text-indigo-700"><i class="fas fa-mobile-alt"></i> 手機號碼回傳測試</h2>
-                <div class="form-group">
-                    <label for="phone-number" class="block text-sm font-medium text-gray-700">輸入任意數字：</label>
-                    <input type="text" id="phone-number" placeholder="請輸入數字"
-                        class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
-                </div>
-                <div class="button-group flex space-x-2">
-                    <button id="analyze-phone-btn"
-                        class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">測試回傳</button>
-                    <button id="reset-phone-btn"
-                        class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">清除</button>
-                </div>
-            </div>
+        <div class="mb-6">
+            <label for="phone-number" class="block text-gray-700 text-sm font-bold mb-2">
+                手機號碼 (10 位數字):
+            </label>
+            <input type="text" id="phone-number" placeholder="例如: 0912345678" maxlength="10"
+                   class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
         </div>
 
-        <section id="analysis-summary" class="bg-white p-6 rounded-lg shadow hidden">
-            <h2 class="text-xl font-semibold text-indigo-700 mb-3">🔍 回傳結果</h2>
-            <p class="text-gray-700" id="summary-text"></p>
-        </section>
+        <div class="flex justify-center mb-8">
+            <button id="analyze-button"
+                    class="btn-primary font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+                測試回傳
+            </button>
+        </div>
+
+        <div id="analysis-summary" class="hidden result-box p-4 rounded-md">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">後端回傳結果:</h2>
+            <div id="summary-text" class="text-gray-700 text-lg">
+                </div>
+        </div>
     </div>
 
     <script>
-        // 請務必將此 URL 替換為您新部署 Apps Script 後取得的 URL
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw8JPBITpT51tmxrAcLP2tlLiXXnRi3NMs0qJldtctuw8ANY3f0SAMSr5bd9M8tuDxW/exec'; // 替換為您的新 URL
+        // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL ***
+        // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycbyzPQkLaGFs4YX-tRihWG2tJl_AHiYqy_yX4pwn2p7h0kpWnxZEdG_9B94zG_imi4ec/exec' 這樣的形式
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6AKy62Ccxr2k-Wb4G092P5o2z5iXx3i0BrssofsTHR61OlTMv8P0eS087Mtc1rm5P/exec'; 
 
-        document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
-        document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
+        document.getElementById('analyze-button').addEventListener('click', analyzePhoneNumber);
+
+        async function analyzePhoneNumber() {
+            const phoneNumber = document.getElementById('phone-number').value.trim();
+
+            if (!phoneNumber) {
+                alert('請輸入數字進行測試！');
+                return;
+            }
+
+            // 基本驗證，確保是 10 位數字
+            if (!/^\d{10}$/.test(phoneNumber)) {
+                alert('請輸入有效的手機號碼 (10 位數字)！');
+                return;
+            }
+
+            document.getElementById('summary-text').innerHTML = '傳送中...';
+            document.getElementById('analysis-summary').classList.remove('hidden');
+
+            try {
+                // 正確的 fetch 語法：使用反引號 (`) 和 ${} 嵌入變數
+                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
+
+                if (!response.ok) {
+                    // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
+                    throw new Error(`HTTP error! status: ${response.status} 或 CORS 問題。`);
+                }
+                
+                // 嘗試解析 JSON 響應
+                const data = await response.json(); 
+
+                // 檢查後端回傳的數據結構
+                if (data && data.receivedNumber && data.analysis) {
+                    document.getElementById('summary-text').innerHTML = `
+                        <p>從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span></p>
+                        <p>分析結果：</p>
+                        <ul>
+                            <li>是否有效：${data.analysis.isValid ? '是' : '否'}</li>
+                            <li>訊息：${data.analysis.message}</li>
+                            <li>幸運分數：${data.analysis.luckyScore}</li>
+                            <li>模式匹配：${data.analysis.patternMatch}</li>
+                        </ul>
+                    `;
+                } else {
+                    // 如果回傳的 JSON 格式不是預期的，也顯示出來
+                    document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+
+            } catch (error) {
+                console.error('Error fetching data from GS:', error);
+                alert('連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
+                resetAnalysis();
+            }
+        }
 
         function resetAnalysis() {
-            document.getElementById('phone-number').value = '';
             document.getElementById('analysis-summary').classList.add('hidden');
             document.getElementById('summary-text').innerHTML = '';
         }
-
-        async function analyzePhoneNumber() {
-    const phoneNumber = document.getElementById('phone-number').value.trim();
-
-    if (!phoneNumber) {
-        alert('請輸入數字進行測試！');
-        return;
-    }
-
-    document.getElementById('summary-text').innerHTML = '傳送中...';
-    document.getElementById('analysis-summary').classList.remove('hidden');
-
-    try {
-        // !!! 請仔細檢查這一行 !!!
-        // 確保 `APPS_SCRIPT_WEB_APP_URL` 和 `phoneNumber` 是在反引號 (`) 內的 `${}` 中
-        // 並且沒有任何多餘的引號或其他字符
-        //const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
-          const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`);
-
-
-        if (!response.ok) {
-            // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
-            throw new Error(`HTTP error! status: ${response.status} or CORS issue.`);
-        }
-        
-        // 嘗試解析 JSON 響應
-        const data = await response.json(); 
-
-        // 檢查後端回傳的 receivedNumber
-        if (data && data.receivedNumber) {
-            document.getElementById('summary-text').innerHTML = `從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span>`;
-        } else {
-            // 如果回傳的 JSON 格式不是預期的，也顯示出來
-            document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
-        }
-
-    } catch (error) {
-        console.error('Error fetching data from GS:', error);
-        alert('連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
-        
-        resetAnalysis();
-    }
-    }   
     </script>
 </body>
-
 </html>
