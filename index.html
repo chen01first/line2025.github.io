@@ -41,7 +41,7 @@
 
     <script>
         // 請務必將此 URL 替換為您新部署 Apps Script 後取得的 URL
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxh5eUwuuVxEDYJtVyiqo5wophsDiqSklqIu-GU9zUDBtYxu-aeQS9BIUfRzhPkMO17/exec'; // 替換為您的新 URL
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw8JPBITpT51tmxrAcLP2tlLiXXnRi3NMs0qJldtctuw8ANY3f0SAMSr5bd9M8tuDxW/exec'; // 替換為您的新 URL
 
         document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
         document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
@@ -67,7 +67,9 @@
         // !!! 請仔細檢查這一行 !!!
         // 確保 `APPS_SCRIPT_WEB_APP_URL` 和 `phoneNumber` 是在反引號 (`) 內的 `${}` 中
         // 並且沒有任何多餘的引號或其他字符
-        const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
+        //const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
+        const response = await fetch(`<span class="math-inline">\{APPS\_SCRIPT\_WEB\_APP\_URL\}?phoneNumber\=</span>{phoneNumber}`);
+
 
         if (!response.ok) {
             // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
@@ -88,6 +90,7 @@
     } catch (error) {
         console.error('Error fetching data from GS:', error);
         alert('連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
+        
         resetAnalysis();
     }
     }   
