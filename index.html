@@ -68,7 +68,7 @@
         // 確保 `APPS_SCRIPT_WEB_APP_URL` 和 `phoneNumber` 是在反引號 (`) 內的 `${}` 中
         // 並且沒有任何多餘的引號或其他字符
         //const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
-        const response = await fetch(`<span class="math-inline">\{APPS\_SCRIPT\_WEB\_APP\_URL\}?phoneNumber\=</span>{phoneNumber}`);
+          const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`);
 
 
         if (!response.ok) {
