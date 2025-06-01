@@ -110,32 +110,29 @@
             document.getElementById('analysis-steps').classList.add('hidden'); // 暫時隱藏
 
             try {
-                // 使用 GET 請求將手機號碼作為 URL 參數傳遞
-                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
+    const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
 
-                if (data.error) {
-                    alert('分析失敗: ' + data.error);
-                    resetAnalysis();
-                    return;
-                }
+    if (data.error) {
+        alert('分析失敗: ' + data.error);
+        resetAnalysis();
+        return;
+    }
 
-                // 成功獲取結果後顯示區塊
-                document.getElementById('analysis-summary').classList.remove('hidden');
-                document.getElementById('dna-statistics').classList.remove('hidden');
-                document.getElementById('analysis-steps').classList.remove('hidden');
+    // 這裡我們只是簡單地顯示從後端收到的數字
+    document.getElementById('analysis-summary').classList.remove('hidden');
+    document.getElementById('summary-text').innerHTML = `從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span>`;
+    document.getElementById('dna-statistics').classList.add('hidden'); // 隱藏不相關的區塊
+    document.getElementById('analysis-steps').classList.add('hidden'); // 隱藏不相關的區塊
 
-                // 調用渲染函數，傳遞後端回傳的數據
-                renderResults(phoneNumber, data.analysisResults, data.dnaCounts);
-
-            } catch (error) {
-                console.error('Error fetching DNA analysis:', error);
-                alert('分析過程中發生錯誤，請稍後再試。');
-                resetAnalysis();
-            }
+} catch (error) {
+    console.error('Error fetching data from GS:', error);
+    alert('連接後端發生錯誤，請稍後再試。');
+    resetAnalysis();
+}
         }
 
         function renderResults(phoneNumber, results, dnaCounts) {
