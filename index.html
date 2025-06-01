@@ -41,7 +41,7 @@
 
     <script>
         // 請務必將此 URL 替換為您新部署 Apps Script 後取得的 URL
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyzPQkLaGFs4YX-tRihWG2tJl_AHiYqy_yX4pwn2p7h0kpWnxZEdG_9B94zG_imi4ec/exec'; // 替換為您的新 URL
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxh5eUwuuVxEDYJtVyiqo5wophsDiqSklqIu-GU9zUDBtYxu-aeQS9BIUfRzhPkMO17/exec'; // 替換為您的新 URL
 
         document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
         document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
@@ -53,38 +53,44 @@
         }
 
         async function analyzePhoneNumber() {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
+    const phoneNumber = document.getElementById('phone-number').value.trim();
 
-            if (!phoneNumber) {
-                alert('請輸入數字進行測試！');
-                return;
-            }
+    if (!phoneNumber) {
+        alert('請輸入數字進行測試！');
+        return;
+    }
 
-            document.getElementById('summary-text').innerHTML = '傳送中...';
-            document.getElementById('analysis-summary').classList.remove('hidden');
+    document.getElementById('summary-text').innerHTML = '傳送中...';
+    document.getElementById('analysis-summary').classList.remove('hidden');
 
-            try {
-                /*const response = await fetch(`<span class="math-inline">\{APPS\_SCRIPT\_WEB\_APP\_URL\}?phoneNumber\=</span>{phoneNumber}`);*/
-                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
+    try {
+        // !!! 請仔細檢查這一行 !!!
+        // 確保 `APPS_SCRIPT_WEB_APP_URL` 和 `phoneNumber` 是在反引號 (`) 內的 `${}` 中
+        // 並且沒有任何多餘的引號或其他字符
+        const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-
-                // 檢查後端回傳的 receivedNumber
-                if (data && data.receivedNumber) {
-                    document.getElementById('summary-text').innerHTML = `從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span>`;
-                } else {
-                    document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                }
-
-            } catch (error) {
-                console.error('Error fetching data from GS:', error);
-                alert('連接後端發生錯誤，請檢查瀏覽器控制台。');
-                resetAnalysis();
-            }
+        if (!response.ok) {
+            // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
+            throw new Error(`HTTP error! status: ${response.status} or CORS issue.`);
         }
+        
+        // 嘗試解析 JSON 響應
+        const data = await response.json(); 
+
+        // 檢查後端回傳的 receivedNumber
+        if (data && data.receivedNumber) {
+            document.getElementById('summary-text').innerHTML = `從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span>`;
+        } else {
+            // 如果回傳的 JSON 格式不是預期的，也顯示出來
+            document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+    } catch (error) {
+        console.error('Error fetching data from GS:', error);
+        alert('連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
+        resetAnalysis();
+    }
+    }   
     </script>
 </body>
 
