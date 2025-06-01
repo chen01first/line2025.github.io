@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>蔡老師數字DNA分析工具</title>
+    <title>蔡老師數字DNA分析工具 - 簡化測試</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -12,74 +12,36 @@
 <body class="bg-gray-100 text-gray-800">
     <div class="max-w-5xl mx-auto p-4 space-y-6">
         <header class="text-center">
-            <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具</h1>
-            <p class="text-gray-600 mt-2">輸入號碼後的每一步分析結果</p>
+            <h1 class="text-3xl font-bold text-indigo-700">蔡老師數字DNA分析工具 - 簡化測試</h1>
+            <p class="text-gray-600 mt-2">僅測試前後端連線</p>
         </header>
 
         <div class="bg-white p-6 rounded-lg shadow">
-            <div class="tabs flex space-x-2 mb-4">
-                <button class="tab-btn bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded">手機號碼DNA</button>
-                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">有圖有真相</button>
-                <button class="tab-btn bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded">分享更多人</button>
-            </div>
-
-            <div id="phone-tab" class="tab-content">
-                <div class="input-section space-y-4">
-                    <h2 class="text-xl font-semibold text-indigo-700"><i class="fas fa-mobile-alt"></i> 手機號碼分析</h2>
-                    <div class="form-group">
-                        <label for="phone-number" class="block text-sm font-medium text-gray-700">手機號碼：</label>
-                        <input type="text" id="phone-number" placeholder="請輸入手機號碼 (09開頭，共10位數字)" maxlength="10"
-                            class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
-                    </div>
-                    <div class="button-group flex space-x-2">
-                        <button id="analyze-phone-btn"
-                            class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">手機號碼DNA分析</button>
-                        <button id="reset-phone-btn"
-                            class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">重來一次</button>
-                    </div>
+            <div class="input-section space-y-4">
+                <h2 class="text-xl font-semibold text-indigo-700"><i class="fas fa-mobile-alt"></i> 手機號碼回傳測試</h2>
+                <div class="form-group">
+                    <label for="phone-number" class="block text-sm font-medium text-gray-700">輸入任意數字：</label>
+                    <input type="text" id="phone-number" placeholder="請輸入數字"
+                        class="mt-1 w-full border border-gray-300 rounded px-3 py-2">
+                </div>
+                <div class="button-group flex space-x-2">
+                    <button id="analyze-phone-btn"
+                        class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">測試回傳</button>
+                    <button id="reset-phone-btn"
+                        class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">清除</button>
                 </div>
             </div>
         </div>
 
         <section id="analysis-summary" class="bg-white p-6 rounded-lg shadow hidden">
-            <h2 class="text-xl font-semibold text-indigo-700 mb-3">🔍 分析摘要</h2>
+            <h2 class="text-xl font-semibold text-indigo-700 mb-3">🔍 回傳結果</h2>
             <p class="text-gray-700" id="summary-text"></p>
-        </section>
-
-        <section id="dna-statistics" class="bg-white p-6 rounded-lg shadow hidden">
-            <h2 class="text-xl font-semibold text-indigo-700 mb-3">📊 DNA 統計結果</h2>
-            <ul class="list-disc list-inside text-gray-700 space-y-1" id="statistics-list"></ul>
-        </section>
-
-        <section id="analysis-steps" class="hidden">
-            <div
-                class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-                id="steps-grid">
-                </div>
         </section>
     </div>
 
     <script>
-        // DNA 顏色映射，這部分可以保留在前端用於渲染
-        const dnaColors = {
-            '天醫': 'text-green-700',
-            '生氣': 'text-blue-700',
-            '延年': 'text-purple-700',
-            '伏位': 'text-gray-600',
-            '六煞': 'text-yellow-700',
-            '禍害': 'text-orange-700',
-            '絕命': 'text-red-700',
-            '五鬼': 'text-pink-700',
-            '伏位(天醫延伸)': 'text-green-800',
-            '伏位(生氣延伸)': 'text-blue-800',
-            '伏位(延年延伸)': 'text-purple-800',
-            '伏位(六煞延伸)': 'text-yellow-800',
-            '伏位(禍害延伸)': 'text-orange-800',
-            '伏位(絕命延伸)': 'text-red-800',
-            '伏位(五鬼延伸)': 'text-pink-800',
-        };
-
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxtjdoieuq1iVjonuzmNXj-2pGHvLPgpYa7TSY7fCU1SrugKD26db9ph1Qo0hgEtN9s/exec';
+        // 請務必將此 URL 替換為您新部署 Apps Script 後取得的 URL
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHL2UvUtX__sX0mmYZXwIwTkLhI5k4OwMR3QW0heFu8h_bK0iA-X7t-zeEGTG5Rzpy/exec'; // 替換為您的新 URL
 
         document.getElementById('analyze-phone-btn').addEventListener('click', analyzePhoneNumber);
         document.getElementById('reset-phone-btn').addEventListener('click', resetAnalysis);
@@ -87,114 +49,39 @@
         function resetAnalysis() {
             document.getElementById('phone-number').value = '';
             document.getElementById('analysis-summary').classList.add('hidden');
-            document.getElementById('dna-statistics').classList.add('hidden');
-            document.getElementById('analysis-steps').classList.add('hidden');
             document.getElementById('summary-text').innerHTML = '';
-            document.getElementById('statistics-list').innerHTML = '';
-            document.getElementById('steps-grid').innerHTML = '';
         }
 
         async function analyzePhoneNumber() {
             const phoneNumber = document.getElementById('phone-number').value.trim();
 
-            if (phoneNumber.length !== 10 || !phoneNumber.startsWith('09') || !/^\d+$/.test(phoneNumber)) {
-                alert('請輸入有效的10位手機號碼，必須以09開頭！');
-                resetAnalysis();
+            if (!phoneNumber) {
+                alert('請輸入數字進行測試！');
                 return;
             }
 
-            // 顯示載入狀態（可選）
-            document.getElementById('summary-text').innerHTML = '分析中，請稍候...';
+            document.getElementById('summary-text').innerHTML = '傳送中...';
             document.getElementById('analysis-summary').classList.remove('hidden');
-            document.getElementById('dna-statistics').classList.add('hidden'); // 暫時隱藏
-            document.getElementById('analysis-steps').classList.add('hidden'); // 暫時隱藏
 
             try {
-    const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
+                const response = await fetch(`<span class="math-inline">\{APPS\_SCRIPT\_WEB\_APP\_URL\}?phoneNumber\=</span>{phoneNumber}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
 
-    if (data.error) {
-        alert('分析失敗: ' + data.error);
-        resetAnalysis();
-        return;
-    }
-
-    // 這裡我們只是簡單地顯示從後端收到的數字
-    document.getElementById('analysis-summary').classList.remove('hidden');
-    document.getElementById('summary-text').innerHTML = `從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span>`;
-    document.getElementById('dna-statistics').classList.add('hidden'); // 隱藏不相關的區塊
-    document.getElementById('analysis-steps').classList.add('hidden'); // 隱藏不相關的區塊
-
-} catch (error) {
-    console.error('Error fetching data from GS:', error);
-    alert('連接後端發生錯誤，請稍後再試。');
-    resetAnalysis();
-}
-        }
-
-        function renderResults(phoneNumber, results, dnaCounts) {
-            // --- Analysis Summary ---
-            const summaryText = document.getElementById('summary-text');
-            let summaryHtml = `手機號碼 <span class="font-bold text-indigo-900">${phoneNumber}</span>分析結果：<br>`;
-            summaryHtml += results.map(r => {
-                let displayPair = r.highlighted; // 後端會直接提供 highlighted
-                const colorClass = dnaColors[r.type] || 'text-gray-800';
-                return `<span class="${colorClass} font-semibold">${displayPair}${r.explanation ? ` ${r.explanation}` : ''}</span>: ${r.type}`;
-            }).join('、 ');
-            summaryText.innerHTML = summaryHtml;
-
-            // --- DNA Statistics ---
-            const statisticsList = document.getElementById('statistics-list');
-            statisticsList.innerHTML = '';
-            const sortedDnaTypes = Object.keys(dnaCounts).sort((a, b) => {
-                const order = ['天醫', '生氣', '延年', '伏位', '六煞', '禍害', '絕命', '五鬼'];
-                return order.indexOf(a) - order.indexOf(b);
-            });
-
-            sortedDnaTypes.forEach(type => {
-                const count = dnaCounts[type];
-                const colorClass = dnaColors[type] || 'text-gray-800';
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `共出現 <span class="font-bold ${colorClass}">${count}</span> 次${type}`;
-                statisticsList.appendChild(listItem);
-            });
-
-            // --- Analysis Steps Grid ---
-            const stepsGrid = document.getElementById('steps-grid');
-            stepsGrid.innerHTML = '';
-
-            results.forEach(result => {
-                const stepDiv = document.createElement('div');
-                let bgColorClass = 'bg-indigo-50';
-                if (result.type === '絕命' || result.type.includes('禍害')) {
-                    bgColorClass = 'bg-red-100';
+                // 檢查後端回傳的 receivedNumber
+                if (data && data.receivedNumber) {
+                    document.getElementById('summary-text').innerHTML = `從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span>`;
+                } else {
+                    document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
                 }
 
-                stepDiv.className = `p-4 ${bgColorClass} rounded-md shadow-sm`;
-
-                let displayedNumber = phoneNumber;
-                const startIndex = result.startIndex;
-                const endIndex = result.endIndex;
-
-                displayedNumber =
-                    phoneNumber.substring(0, startIndex) +
-                    `<span class="text-red-600 font-bold">${phoneNumber.substring(startIndex, endIndex + 1)}</span>` +
-                    phoneNumber.substring(endIndex + 1);
-
-                const colorClass = dnaColors[result.type] || 'text-gray-800';
-
-                // 後端已提供正確的 highlighted，這裡直接使用
-                let analyzedPairDisplay = result.highlighted;
-
-                stepDiv.innerHTML = `
-                    <p class="text-sm text-gray-500 mb-1">第${result.step}步：${displayedNumber}</p>
-                    <p><strong class="text-gray-800">${analyzedPairDisplay}</strong>: <span class="${colorClass} font-semibold">${result.type}${result.explanation ? ` ${result.explanation}` : ''}</span></p>
-                `;
-                stepsGrid.appendChild(stepDiv);
-            });
+            } catch (error) {
+                console.error('Error fetching data from GS:', error);
+                alert('連接後端發生錯誤，請檢查瀏覽器控制台。');
+                resetAnalysis();
+            }
         }
     </script>
 </body>
