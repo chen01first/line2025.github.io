@@ -22,21 +22,67 @@
     .theme-tag {
       display: inline-block;
       padding: 0.25rem 0.5rem;
-      border-radius: 9999px; /* 橢圓形 */
+      border-radius: 9999px;
+      /* 橢圓形 */
       font-weight: 600;
       font-size: 0.875rem;
       text-align: center;
+      white-space: nowrap; /* 防止文字換行 */
     }
 
     /* 各種數字主題的顏色定義 */
-    .theme-tag-tianyi { background-color: #3b82f6; color: white; } /* 天醫 - 藍色 */
-    .theme-tag-shengqi { background-color: #22c55e; color: white; } /* 生氣 - 綠色 */
-    .theme-tag-yanlian { background-color: #8b5cf6; color: white; } /* 延年 - 紫色 */
-    .theme-tag-fuwei { background-color: #64748b; color: white; } /* 伏位 - 灰色 */
-    .theme-tag-liusha { background-color: #ef4444; color: white; } /* 六煞 - 紅色 */
-    .theme-tag-huohai { background-color: #f97316; color: white; } /* 禍害 - 橙色 */
-    .theme-tag-jueming { background-color: #dc2626; color: white; } /* 絕命 - 深紅 */
-    .theme-tag-wugui { background-color: #a855f7; color: white; } /* 五鬼 - 紫羅蘭 */
+    .theme-tag-tianyi {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    /* 天醫 - 藍色 */
+    .theme-tag-shengqi {
+      background-color: #22c55e;
+      color: white;
+    }
+
+    /* 生氣 - 綠色 */
+    .theme-tag-yanlian {
+      background-color: #8b5cf6;
+      color: white;
+    }
+
+    /* 延年 - 紫色 */
+    .theme-tag-fuwei {
+      background-color: #64748b;
+      color: white;
+    }
+
+    /* 伏位 - 灰色 */
+    .theme-tag-liusha {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    /* 六煞 - 紅色 */
+    .theme-tag-huohai {
+      background-color: #f97316;
+      color: white;
+    }
+
+    /* 禍害 - 橙色 */
+    .theme-tag-jueming {
+      background-color: #dc2626;
+      color: white;
+    }
+
+    /* 絕命 - 深紅 */
+    .theme-tag-wugui {
+      background-color: #a855f7;
+      color: white;
+    }
+
+    /* 伏位延伸的樣式，使用伏位的顏色 */
+    .theme-tag-fuwei-extension {
+      background-color: #64748b;
+      color: white;
+    }
 
 
     .tab-btn.active {
@@ -45,41 +91,37 @@
     }
 
     .bridge-mark {
-      color: #9ca3af; /* 較淡的顏色 */
+      color: #9ca3af;
+      /* 較淡的顏色 */
       font-style: italic;
       font-size: 0.8em;
       margin-top: 0.25rem;
-      position: relative; /* 為了線條定位 */
-      display: inline-block; /* 讓元素能設定寬度 */
-      padding-bottom: 5px; /* 為線條預留空間 */
-    }
-
-    .bridge-mark::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 1px; /* 線條厚度 */
-        background-color: #d1d5db; /* 線條顏色 */
+      padding-bottom: 5px;
+      /* 為線條預留空間 */
+      border-bottom: 1px solid #d1d5db;
+      /* 一條線隔開 */
+      display: block; /* 讓其獨佔一行 */
+      line-height: 1.5; /* 調整行高讓文字和線條更舒適 */
     }
 
     /* RWD 佈局調整 */
-    @media (min-width: 1024px) { /* 大於等於 lg (1024px) */
-      #analysisOutput {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-      }
+    #analysisOutput {
+      display: grid;
+      gap: 1rem; /* Tailwind 的 gap-4 */
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 手機 (預設) */
     }
 
-    @media (min-width: 768px) and (max-width: 1023px) { /* 大於等於 md (768px) 且小於 lg */
+    @media (min-width: 768px) {
+      /* 平板 (md) */
       #analysisOutput {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 767px) { /* 小於 md (768px) */
+    @media (min-width: 1024px) {
+      /* 桌機 (lg) */
       #analysisOutput {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
     }
   </style>
@@ -123,7 +165,7 @@
           <i class="fas fa-copy mr-1"></i> 複製結果
         </button>
       </div>
-      <div id="analysisOutput" class="grid gap-4">
+      <div id="analysisOutput">
         <div class="text-center py-8 text-gray-400 col-span-full">
           <i class="fas fa-phone-alt text-4xl mb-2"></i>
           <p>請輸入電話號碼開始分析</p>
@@ -186,13 +228,14 @@
       '禍害': 'theme-tag-huohai',
       '絕命': 'theme-tag-jueming',
       '五鬼': 'theme-tag-wugui',
-      '伏位(天醫延伸)': 'theme-tag-fuwei',
-      '伏位(生氣延伸)': 'theme-tag-fuwei',
-      '伏位(延年延伸)': 'theme-tag-fuwei',
-      '伏位(六煞延伸)': 'theme-tag-fuwei',
-      '伏位(禍害延伸)': 'theme-tag-fuwei',
-      '伏位(絕命延伸)': 'theme-tag-fuwei',
-      '伏位(五鬼延伸)': 'theme-tag-fuwei',
+      // 伏位延伸使用伏位本身的顏色類別
+      '伏位(天醫延伸)': 'theme-tag-fuwei-extension',
+      '伏位(生氣延伸)': 'theme-tag-fuwei-extension',
+      '伏位(延年延伸)': 'theme-tag-fuwei-extension',
+      '伏位(六煞延伸)': 'theme-tag-fuwei-extension',
+      '伏位(禍害延伸)': 'theme-tag-fuwei-extension',
+      '伏位(絕命延伸)': 'theme-tag-fuwei-extension',
+      '伏位(五鬼延伸)': 'theme-tag-fuwei-extension',
     };
 
     /**
@@ -201,10 +244,6 @@
      * @returns {string} 對應的 CSS 類名
      */
     function getThemeClass(theme) {
-      // 處理伏位延伸的主題，確保它們也映射到伏位的顏色
-      if (theme.startsWith('伏位(') && theme.endsWith('延伸)')) {
-        return 'theme-tag-fuwei';
-      }
       return themeColorMap[theme] || 'bg-gray-200 text-gray-800'; // 默認樣式
     }
 
@@ -345,7 +384,7 @@
         const combination = box.querySelector('strong').textContent;
         const theme = box.querySelector('.theme-tag').textContent;
         const bridge = box.querySelector('.bridge-mark') ? box.querySelector('.bridge-mark').textContent : '';
-        resultsText += `${step}\n${combination}: ${theme}\n${bridge ? bridge + '\n' : ''}\n`;
+        resultsText += `${step.trim()}\n${combination}: ${theme.trim()}\n${bridge ? bridge.trim() + '\n' : ''}\n`;
       });
 
       try {
