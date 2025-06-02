@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手機號碼回傳測試 (GS ContentService) v06</title>
+    <title>JS邏輯保護與CORS解決方案</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        /* 您可以在這裡添加自定義的 CSS 樣式 */
         body {
             background-color: #f0f4f8; /* 淺灰色背景 */
         }
@@ -26,89 +25,143 @@
             border-left: 4px solid #0ea5e9; /* 藍色邊框 */
         }
         .result-box pre {
-            white-space: pre-wrap; /* 預格式化文本自動換行 */
-            word-wrap: break-word; /* 長單詞換行 */
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        /* 隱藏用於 Apps Script 通訊的 iframe */
+        #apps-script-iframe {
+            display: none;
+            width: 0;
+            height: 0;
+            border: none;
         }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService) v12</h1>
-        <p class="text-center text-gray-600 mb-8">輸入任何文字或數字，測試後端回傳功能。</p>
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">後端JS邏輯保護測試v01</h1>
+        <p class="text-center text-gray-600 mb-8">
+            輸入任意內容，後端Apps Script將進行**受保護的分析邏輯**處理並回傳。
+        </p>
 
         <div class="mb-6">
             <label for="user-input" class="block text-gray-700 text-sm font-bold mb-2">
-                輸入任意內容:
+                輸入任意內容 (例如: 12345 或 Hello World):
             </label>
-            <input type="text" id="user-input" placeholder="例如: Hello World 或 0912345678" 
+            <input type="text" id="user-input" placeholder="輸入要傳送給後端分析的資料" 
                    class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
         </div>
 
         <div class="flex justify-center mb-8">
             <button id="send-button"
                     class="btn-primary font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
-                傳送數據到後端
+                傳送數據到後端 Apps Script
             </button>
         </div>
 
         <div id="response-summary" class="hidden result-box p-4 rounded-md">
-            <h2 class="text-xl font-semibold text-gray-800 mb-3">後端回傳結果:</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">後端處理結果:</h2>
             <div id="summary-text" class="text-gray-700 text-lg">
                 </div>
         </div>
+
+        <iframe id="apps-script-iframe"></iframe>
+
     </div>
 
     <script>
-       
-           const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby5xZk_MZXw1y3QNtJxdfFZzkKfgXs1Gz9TNkXhzC6csZUA_Ve_xKynUQrXLbylbNE/exec';
+        // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL ***
+        // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycby.../exec' 這樣的形式
+        // 它現在是 Apps Script 的 URL，不是 Worker 的 URL 了
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxjQ6erdYb7bTy-5z-UrPF2Kn51YiFFCNlPbBNWt6IS4sg5hhRh2SAcuihv1Vz4zvEZ/exec';
 
-    document.getElementById('send-button').addEventListener('click', sendDataToBackend);
+        // 獲取當前網頁的源 (Origin)，用於 Apps Script 回傳時的安全性檢查
+        const FRONTEND_ORIGIN = window.location.origin;
 
-    async function sendDataToBackend() {
-        const userInput = document.getElementById('user-input').value.trim();
-        console.log("▶︎ fetch 前的 URL：", `${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`);
-        if (!userInput) {
-            alert('請輸入一些內容進行測試！');
-            return;
-        }
+        // 用於追蹤請求，如果有多個請求同時發送
+        let currentCallbackId = 0;
+        const pendingRequests = {}; // 儲存待處理的回調
 
-        document.getElementById('summary-text').innerHTML = '傳送中...';
-        document.getElementById('response-summary').classList.remove('hidden');
+        document.getElementById('send-button').addEventListener('click', sendDataToBackend);
 
-        try {
-            const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`, {
-                method: 'GET',
-                mode: 'cors', // 明確指定使用 CORS
-                headers: {
-                    'Accept': 'application/json'
+        // 監聽來自 Apps Script iframe 的消息
+        window.addEventListener('message', function(event) {
+            // 為了安全，檢查消息來源是否是您的 Apps Script URL 的網域
+            // Apps Script 的 URL 網域是 script.google.com
+            if (event.origin !== 'https://script.google.com') {
+                console.warn('收到來自未知來源的消息:', event.origin);
+                return;
+            }
+
+            const data = event.data; // Apps Script 通過 postMessage 發送的數據
+
+            if (data && data.callbackId !== undefined && pendingRequests[data.callbackId]) {
+                const resolve = pendingRequests[data.callbackId].resolve;
+                const reject = pendingRequests[data.callbackId].reject;
+                
+                delete pendingRequests[data.callbackId]; // 處理完畢後移除
+
+                // 根據 Apps Script 返回的數據，判斷成功或失敗
+                if (data.analysisResult) {
+                    resolve(data);
+                } else {
+                    reject(new Error(data.message || 'Apps Script 返回無效數據。'));
                 }
+            }
+        });
+
+        async function sendDataToBackend() {
+            const userInput = document.getElementById('user-input').value.trim();
+
+            if (!userInput) {
+                alert('請輸入一些內容進行測試！');
+                return;
+            }
+
+            document.getElementById('summary-text').innerHTML = '傳送中，等待後端分析...';
+            document.getElementById('response-summary').classList.remove('hidden');
+
+            const callbackId = currentCallbackId++; // 為每個請求生成唯一的 ID
+
+            // 創建 Promise 以等待 Apps Script 回調
+            const responsePromise = new Promise((resolve, reject) => {
+                pendingRequests[callbackId] = { resolve, reject };
+
+                // 構建 Apps Script 的 URL，包含 data 參數，frontendOrigin 和 callbackId
+                const url = `${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}&frontendOrigin=${encodeURIComponent(FRONTEND_ORIGIN)}&callbackId=${callbackId}`;
+
+                // 獲取或創建隱藏的 iframe
+                const iframe = document.getElementById('apps-script-iframe');
+                iframe.src = url; // 設置 iframe 的 src 觸發請求
+                // 注意：這裡不需要 fetch API 了，我們是通過 iframe 加載來觸發請求的。
+                // 瀏覽器將會去加載這個 Apps Script 的 URL，並執行其中的 JavaScript。
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
-            }
+            try {
+                const data = await responsePromise; // 等待 Apps Script 回調的數據
 
-            const data = await response.json();
+                // 檢查後端回傳的數據結構
+                if (data && data.analysisResult) {
+                    document.getElementById('summary-text').innerHTML = `
+                        <p>從後端收到的原始資料是：<span class="font-bold text-indigo-900">${data.receivedData || '無'}</span></p>
+                        <p>後端分析邏輯處理結果：<span class="font-bold text-green-700">${data.analysisResult}</span></p>
+                        <p>處理訊息：${data.message}</p>
+                    `;
+                } else {
+                    document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
 
-            if (data && data.receivedData) {
-                document.getElementById('summary-text').innerHTML = `
-                    <p>從後端收到的資料是：<span class="font-bold text-indigo-900">${data.receivedData}</span></p>
-                    <p>處理訊息：${data.message}</p>
-                `;
-            } else {
-                document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Error fetching data from backend:', error);
+                alert('連接或處理後端數據發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
+                document.getElementById('summary-text').innerHTML = `<p class="text-red-600">錯誤：${error.message}</p>`;
+                resetResponse();
             }
-        } catch (error) {
-            console.error('Error fetching data from GS:', error);
-            alert(`連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：${error.message}`);
-            resetResponse();
         }
-    }
 
-    function resetResponse() {
-        document.getElementById('response-summary').classList.add('hidden');
-        document.getElementById('summary-text').innerHTML = '';
-    }
+        function resetResponse() {
+            // 現在我們保留顯示結果，所以這個函數暫時沒有直接使用
+        }
     </script>
 </body>
 </html>
