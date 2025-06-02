@@ -5,99 +5,240 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>蔡老師數字DNA分析工具</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    /* Custom styles for better visual cues and responsive adjustments */
+    /* Custom styles for modern aesthetic */
     body {
-      background-color: #f8fafc; /* Tailwind's gray-50 */
+      font-family: 'Inter', sans-serif; /* Using Inter from Google Fonts */
+      background-color: #f0f4f8; /* Light blue-gray for a fresh look */
+      color: #334155; /* Slate-700 for main text */
     }
 
-    .highlight-box {
-      transition: all 0.3s ease;
-      background-color: #f0f9ff; /* Tailwind's sky-50 */
+    /* Header styling */
+    header {
+      background-image: linear-gradient(to right top, #6d28d9, #4f46e5); /* Gradient background */
+      color: white;
+      padding: 2.5rem 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Stronger shadow for depth */
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 2.75rem; /* Larger heading */
+      letter-spacing: -0.05em; /* Tighter letter spacing */
+      line-height: 1.2;
+      font-weight: 800; /* Extra bold */
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Subtle text shadow */
+    }
+    header p {
+      font-size: 1.25rem;
+      opacity: 0.9;
     }
 
-    .highlight-box:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    /* Section & Card styling */
+    section, .bg-white {
+      background-color: #ffffff;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Refined shadow */
+      transition: all 0.3s ease-in-out; /* Smooth transitions */
+    }
+    section:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); /* Lift on hover */
     }
 
-    .theme-tag {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
+    /* Input & Button styling */
+    input[type="tel"] {
+      border-color: #cbd5e1; /* Slate-300 */
+      transition: all 0.2s ease-in-out;
+    }
+    input[type="tel"]:focus {
+      border-color: #6366f1; /* Indigo-500 */
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* Indigo-500 with opacity */
+    }
+    .analyze-btn {
+      background-image: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Violet gradient */
+      color: white;
       font-weight: 600;
-      font-size: 0.875rem; /* text-sm */
+      transition: all 0.3s ease;
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+    .analyze-btn:hover {
+      box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+      transform: translateY(-1px);
+    }
+    .analyze-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: translateY(0);
     }
 
+    /* Tabs styling */
     .tab-btn {
-      @apply px-4 py-2 rounded-lg transition-colors duration-200 ease-in-out;
-      background-color: #e2e8f0; /* Tailwind's gray-200 */
-      color: #475569; /* Tailwind's slate-600 */
-      font-weight: 500;
+      @apply px-5 py-2.5 rounded-full transition-all duration-300 ease-in-out font-medium text-sm;
+      background-color: #e2e8f0; /* Light gray */
+      color: #64748b; /* Slate-600 */
+      border: 1px solid transparent;
     }
-
+    .tab-btn:hover {
+      background-color: #cfd8e3; /* Slightly darker on hover */
+      color: #334155;
+    }
     .tab-btn.active {
-      @apply bg-indigo-600 text-white shadow-md;
+      background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+      transform: translateY(-2px); /* Slight lift */
+      border-color: transparent;
+    }
+    .tab-btn.active:hover {
+      transform: translateY(-1px); /* Less lift on active hover */
     }
 
-    .bridge-mark {
-      color: #6b7280; /* Tailwind's gray-500 */
-      font-style: italic;
-      font-size: 0.85em; /* slightly larger than before */
-      display: block; /* ensure it takes full width below the main number */
-      margin-top: 0.25rem;
-      font-weight: 500;
+    /* Analysis Result Cards */
+    .highlight-box {
+      background-color: #f8fafc; /* Light background for cards */
+      border: 1px solid #e2e8f0; /* Subtle border */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      position: relative; /* For potential future badge/icon positioning */
+    }
+    .highlight-box:hover {
+      border-color: #a78bfa; /* Violet-300 border on hover */
     }
 
     .number-highlight {
-      color: #ef4444; /* Tailwind's red-500 */
-      font-weight: bold;
+      color: #ef4444; /* Red-500 */
+      font-weight: 700; /* Bolder */
+      letter-spacing: 0.02em; /* Slightly wider spacing */
     }
 
     .analysis-number {
-      color: #0f172a; /* Tailwind's slate-900 */
-      font-weight: bold;
+      color: #1a202c; /* Darker for emphasis */
+      font-weight: 700; /* Bolder */
+      font-size: 1.125rem; /* Larger font */
     }
 
-    /* RWD specific adjustments for result grid */
+    .theme-tag {
+      font-size: 0.9rem; /* Slightly larger tag */
+      padding: 0.3rem 0.65rem;
+      border-radius: 9999px; /* Pill shape */
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      display: inline-flex; /* Align icon if added */
+      align-items: center;
+      gap: 0.25rem;
+    }
+    /* Theme specific colors - richer palette */
+    .theme-tag.bg-green-100 { background-color: #d1fae5; color: #065f46; } /* Tian Yi */
+    .theme-tag.bg-blue-100 { background-color: #dbeafe; color: #1e40af; } /* Sheng Qi */
+    .theme-tag.bg-purple-100 { background-color: #ede9fe; color: #5b21b6; } /* Yan Nian */
+    .theme-tag.bg-gray-100 { background-color: #e5e7eb; color: #374151; } /* Fu Wei */
+    .theme-tag.bg-pink-100 { background-color: #fce7f3; color: #9d174d; } /* Liu Sha */
+    .theme-tag.bg-red-100 { background-color: #fee2e2; color: #991b1b; } /* Huo Hai */
+    .theme-tag.bg-yellow-100 { background-color: #fffbeb; color: #b45309; } /* Jue Ming */
+    .theme-tag.bg-orange-100 { background-color: #fff7ed; color: #c2410c; } /* Wu Gui */
+
+    /* Extended Fu Wei themes - lighter shades for differentiation */
+    .theme-tag.bg-green-50 { background-color: #ecfdf5; color: #06725c; }
+    .theme-tag.bg-blue-50 { background-color: #eff6ff; color: #2563eb; }
+    .theme-tag.bg-purple-50 { background-color: #f5f3ff; color: #7c3aed; }
+    .theme-tag.bg-pink-50 { background-color: #fdf2f8; color: #db2777; }
+    .theme-tag.bg-red-50 { background-color: #fef2f2; color: #ef4444; }
+    .theme-tag.bg-yellow-50 { background-color: #fffdf0; color: #d97706; }
+    .theme-tag.bg-orange-50 { background-color: #fffaf0; color: #f97316; }
+
+
+    .bridge-mark {
+      font-size: 0.75rem; /* Slightly smaller for subtle info */
+      color: #6b7280; /* Gray-500 */
+      margin-top: 0.5rem;
+      font-style: normal; /* Not italic for cleaner look */
+      border-top: 1px dashed #e5e7eb; /* Subtle separator */
+      padding-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    /* RWD grid for results */
     .analysis-grid {
-        display: grid;
-        gap: 1rem; /* 16px */
-        /* Default for mobile: 2 columns */
-        grid-template-columns: repeat(auto-fit, minmax(calc(50% - 0.5rem), 1fr));
+      display: grid;
+      gap: 1.5rem; /* Increased gap for better spacing */
+      /* Mobile: 2 columns */
+      grid-template-columns: repeat(auto-fit, minmax(calc(50% - 0.75rem), 1fr));
     }
-
     @media (min-width: 640px) { /* sm breakpoint: 3 columns */
-        .analysis-grid {
-            grid-template-columns: repeat(auto-fit, minmax(calc(33.333% - 0.666rem), 1fr));
-        }
+      .analysis-grid {
+        grid-template-columns: repeat(auto-fit, minmax(calc(33.333% - 1rem), 1fr));
+      }
+    }
+    @media (min-width: 768px) { /* md breakpoint: 4 columns */
+      .analysis-grid {
+        grid-template-columns: repeat(auto-fit, minmax(calc(25% - 1.125rem), 1fr));
+      }
+    }
+    @media (min-width: 1024px) { /* lg breakpoint: 5 columns (new requirement) */
+      .analysis-grid {
+        grid-template-columns: repeat(auto-fit, minmax(calc(20% - 1.2rem), 1fr));
+      }
     }
 
-    @media (min-width: 768px) { /* md breakpoint: 3 columns */
-        .analysis-grid {
-            grid-template-columns: repeat(auto-fit, minmax(calc(33.333% - 0.666rem), 1fr));
-        }
+    /* Loading and Error states */
+    .loading-animation {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 2rem;
+      color: #6366f1; /* Indigo-500 */
+      font-size: 1.125rem;
+    }
+    .loading-animation .fa-spinner {
+      font-size: 2rem;
+    }
+    .error-message {
+      padding: 1.5rem;
+      background-color: #fee2e2; /* Red-100 */
+      color: #991b1b; /* Red-800 */
+      border-radius: 0.5rem;
+      border: 1px solid #fca5a5; /* Red-300 */
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .error-message .fa-exclamation-triangle {
+      font-size: 1.5rem;
     }
 
-    @media (min-width: 1024px) { /* lg breakpoint: 4 columns */
-        .analysis-grid {
-            grid-template-columns: repeat(auto-fit, minmax(calc(25% - 0.75rem), 1fr));
-        }
+    /* Summary textarea styling */
+    textarea#summaryOutput {
+      min-height: 8rem; /* Minimum height */
+      resize: vertical; /* Allow vertical resizing only */
+      transition: all 0.2s ease-in-out;
+      border-color: #cbd5e1;
+    }
+    textarea#summaryOutput:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
     }
   </style>
 </head>
 
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
   <div class="max-w-6xl mx-auto p-4 md:p-6 space-y-6 flex-grow">
-    <header class="text-center bg-white p-6 rounded-lg shadow-md">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700 mb-2 tracking-tight">蔡老師數字DNA分析工具</h1>
-      <p class="text-gray-600 text-lg md:text-xl">輸入電話號碼，解讀其背後的數字能量</p>
+    <header class="text-center">
+      <h1 class="text-3xl md:text-4xl lg:text-5xl">蔡老師數字DNA分析工具</h1>
+      <p class="text-gray-200 text-lg md:text-xl">輸入號碼，解讀其獨特的數字能量</p>
     </header>
 
     <div class="bg-white p-6 rounded-lg shadow-md">
-      <div class="tabs flex flex-wrap gap-2 mb-4">
+      <div class="tabs flex flex-wrap gap-2 mb-4 justify-center">
         <button class="tab-btn active" data-tab="phone-dna">手機號碼DNA</button>
         <button class="tab-btn" data-tab="image-truth">有圖有真相</button>
         <button class="tab-btn" data-tab="share">分享給更多人</button>
@@ -110,25 +251,27 @@
             class="flex-1 p-3 border border-gray-300 rounded-md text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
             maxlength="10" pattern="09\d{8}" inputmode="numeric" />
           <button id="analyzeBtn"
-            class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-indigo-700 transition-colors shadow-md flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+            class="analyze-btn py-3 px-6 rounded-md shadow-md flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed">
             <i class="fas fa-search mr-2"></i>開始分析
           </button>
         </div>
         <p id="inputErrorMsg" class="text-sm text-red-500 hidden">* 請輸入正確的10位數手機號碼 (09開頭)</p>
       </div>
       
-      <div id="image-truth-tab-content" class="tab-content hidden p-4 text-center text-gray-500">
-        <p>此功能正在開發中...</p>
+      <div id="image-truth-tab-content" class="tab-content hidden p-4 text-center text-gray-500 border border-dashed border-gray-300 rounded-md">
+        <p class="text-lg">✨ 有圖有真相 ✨<br>此功能將以視覺化圖表呈現分析結果，讓您一目瞭然！</p>
+        <p class="text-sm mt-2">（開發中，敬請期待！）</p>
       </div>
-      <div id="share-tab-content" class="tab-content hidden p-4 text-center text-gray-500">
-        <p>分享功能即將上線！</p>
+      <div id="share-tab-content" class="tab-content hidden p-4 text-center text-gray-500 border border-dashed border-gray-300 rounded-md">
+        <p class="text-lg">🚀 分享給更多人 🚀<br>將您的分析結果分享到社群媒體，與朋友一同探索數字的奧秘！</p>
+        <p class="text-sm mt-2">（開發中，敬請期待！）</p>
       </div>
     </div>
 
-    <section class="bg-white p-6 rounded-lg shadow-md">
+    <section>
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold text-indigo-700">分析結果</h2>
-        <button id="copyResultsBtn" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+        <button id="copyResultsBtn" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <i class="fas fa-copy mr-1"></i> 複製結果
         </button>
       </div>
@@ -138,49 +281,48 @@
           <p>請輸入電話號碼開始分析</p>
         </div>
         </div>
-      <div id="loadingIndicator" class="text-center py-4 hidden">
-        <i class="fas fa-spinner fa-spin text-indigo-500 text-2xl"></i>
-        <p class="text-gray-600 mt-2">正在努力分析中，請稍候...</p>
+      <div id="loadingIndicator" class="loading-animation hidden">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>正在努力分析中，請稍候...</p>
       </div>
-      <div id="errorDisplay" class="text-center py-4 hidden">
-        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
-        <p class="text-red-600 mt-2">分析失敗：<span id="errorMessageText"></span></p>
+      <div id="errorDisplay" class="error-message hidden">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>分析失敗：<span id="errorMessageText"></span></p>
       </div>
     </section>
 
-    <section class="bg-white p-6 rounded-lg shadow-md">
+    <section>
       <h2 class="text-xl font-semibold text-indigo-700 mb-4">主題統計</h2>
       <div class="relative">
         <textarea id="summaryOutput" readonly
-          class="w-full p-4 border border-gray-300 rounded-md text-base h-32 md:h-40 focus:ring-2 focus:ring-indigo-500 resize-y"
+          class="w-full p-4 border border-gray-300 rounded-md text-base focus:ring-2 focus:ring-indigo-500 resize-y"
           placeholder="統計摘要會顯示在這裡..."></textarea>
-        <button id="copySummaryBtn" class="absolute top-2 right-2 text-gray-500 hover:text-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button id="copySummaryBtn" class="absolute top-2 right-2 text-gray-500 hover:text-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           <i class="fas fa-copy"></i>
         </button>
       </div>
     </section>
 
-    <section class="bg-white p-6 rounded-lg shadow-md">
+    <section>
       <h2 class="text-xl font-semibold text-indigo-700 mb-4">使用說明</h2>
-      <div class="prose prose-indigo max-w-none">
+      <div class="prose prose-indigo max-w-none text-gray-700">
         <ol class="list-decimal pl-5 space-y-2">
-          <li>輸入09開頭的10位數手機號碼</li>
-          <li>系統會自動在末尾添加0形成11位數進行分析（此為內部邏輯）</li>
-          <li>分析規則簡述：
-            <ul class="list-disc pl-5 mt-1">
-              <li>從左到右逐步分析2位數組合</li>
-              <li>遇到數字5作為橋樑時會有特殊標記和跳位分析</li>
-              <li>最後一位會根據規則進行循環分析</li>
+          <li>輸入09開頭的10位數手機號碼。</li>
+          <li>系統會自動處理電話號碼末尾，並根據以下核心邏輯進行分析：
+            <ul class="list-disc pl-5 mt-1 text-sm">
+              <li>**基礎解析：** 從左到右，每兩個相鄰數字組成一組進行分析。</li>
+              <li>**橋樑數字：** 當數字 '5' 出現時，它會作為橋樑，跳過 '5' 與下一個非 '5' 數字組合進行分析，並會特別標註。例如 `X5Y` 會分析 `XY`。連續的 '5'（如 `X55Y`）會跳過所有連續的 '5'，分析 `XY`。</li>
+              <li>**伏位延伸：** 如果當前組合分析結果為「伏位」，且前一個組合的主題是「天醫、生氣、延年...」等非伏位主題或其延伸伏位，則當前伏位將會延伸為「伏位(原主題延伸)」，以呈現其延續性。</li>
             </ul>
           </li>
-          <li>結果會顯示每一步的分析過程和對應主題</li>
+          <li>結果將清晰顯示每一步的分析過程、使用的數字組合及對應主題。</li>
         </ol>
       </div>
     </section>
   </div>
 
-  <footer class="bg-gray-800 text-white text-center p-4 mt-6">
-    <p>&copy; 2025 蔡老師數字DNA分析工具. All rights reserved.</p>
+  <footer class="bg-gray-900 text-gray-300 text-center p-4 mt-8 text-sm">
+    <p>&copy; 2025 蔡老師數字DNA分析工具. 保留所有權利.</p>
   </footer>
 
   <script>
@@ -201,7 +343,7 @@
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    // 主題顏色映射 (為了前端顯示顏色)
+    // 主題顏色映射 (為了前端顯示顏色) - 參考上述 CSS 調整
     const THEME_COLORS = {
       '天醫': 'bg-green-100 text-green-800',
       '生氣': 'bg-blue-100 text-blue-800',
@@ -211,7 +353,7 @@
       '禍害': 'bg-red-100 text-red-800',
       '絶命': 'bg-yellow-100 text-yellow-800',
       '五鬼': 'bg-orange-100 text-orange-800',
-      // For extended伏位 themes
+      // For extended伏位 themes (lighter shades)
       '伏位(天醫延伸)': 'bg-green-50 text-green-700',
       '伏位(生氣延伸)': 'bg-blue-50 text-blue-700',
       '伏位(延年延伸)': 'bg-purple-50 text-purple-700',
@@ -224,16 +366,22 @@
     // 事件監聽
     analyzeBtn.addEventListener('click', analyzePhoneNumber);
     phoneInput.addEventListener('input', validateInput);
-    copyResultsBtn.addEventListener('click', () => copyToClipboard(analysisOutput.innerText, '分析結果'));
+    copyResultsBtn.addEventListener('click', () => copyToClipboard(getFormattedResultsText(), '分析結果'));
     copySummaryBtn.addEventListener('click', () => copyToClipboard(summaryOutput.value, '統計摘要'));
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tab = button.dataset.tab;
-            tabButtons.forEach(btn => btn.classList.remove('active', 'bg-indigo-600', 'text-white'));
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-gray-100', 'text-gray-600'); /* Ensure non-active state */
+                btn.style.transform = 'translateY(0)'; /* Reset transform */
+                btn.style.boxShadow = 'none'; /* Reset shadow */
+            });
             tabContents.forEach(content => content.classList.add('hidden'));
 
-            button.classList.add('active', 'bg-indigo-600', 'text-white');
+            button.classList.add('active');
+            button.classList.remove('bg-gray-100', 'text-gray-600'); /* Remove non-active styles */
             document.getElementById(`${tab}-tab-content`).classList.remove('hidden');
         });
     });
@@ -270,59 +418,68 @@
       }
       inputErrorMsg.classList.add('hidden');
 
-      analysisOutput.innerHTML = ''; // 清空舊結果
-      summaryOutput.value = ''; // 清空舊摘要
-      loadingIndicator.classList.remove('hidden'); // 顯示加載動畫
-      errorDisplay.classList.add('hidden'); // 隱藏錯誤提示
-      analyzeBtn.disabled = true; // 禁用按鈕防止重複提交
+      // UI 狀態重置
+      analysisOutput.innerHTML = ''; 
+      summaryOutput.value = ''; 
+      loadingIndicator.classList.remove('hidden'); 
+      errorDisplay.classList.add('hidden'); 
+      analyzeBtn.disabled = true; 
       copyResultsBtn.disabled = true;
       copySummaryBtn.disabled = true;
 
 
       try {
         const url = `${CLOUDFLARE_WORKER_URL}?number=${encodeURIComponent(number)}`;
-        console.log('Fetching from:', url); // 為了調試
+        console.log('Fetching from:', url); 
 
         const response = await fetch(url, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json' // 聲明預期 JSON 響應
+            'Content-Type': 'application/json' 
           }
         });
 
         if (!response.ok) {
           const errorBody = await response.text();
           console.error('HTTP Error Body:', errorBody);
-          throw new Error(`HTTP 錯誤: ${response.status} ${response.statusText}. 詳細: ${errorBody}`);
+          // 嘗試解析錯誤為 JSON，如果失敗則顯示原始文本
+          let errorMessage = `HTTP 錯誤: ${response.status} ${response.statusText}.`;
+          try {
+              const errorJson = JSON.parse(errorBody);
+              errorMessage += ` 詳細: ${errorJson.message || errorJson.details || '未知錯誤'}`;
+          } catch (e) {
+              errorMessage += ` 詳細: ${errorBody.substring(0, 100)}...`; // 避免過長
+          }
+          throw new Error(errorMessage);
         }
 
         const result = await response.json();
-        console.log('Received data:', result); // 為了調試
+        console.log('Received data:', result); 
 
         if (result.success && result.analysisResults) {
           displayAnalysisResults(result.analysisResults, result.summary);
         } else {
-          throw new Error(result.message || '後端返回未知錯誤');
+          throw new Error(result.message || '後端返回未知錯誤或無有效結果');
         }
 
       } catch (error) {
         console.error('分析失敗:', error);
-        errorMessageText.textContent = error.message || '無法連接到分析服務，請稍後再試。';
+        errorMessageText.textContent = error.message || '無法連接到分析服務，請檢查網路或稍後再試。';
         errorDisplay.classList.remove('hidden');
         analysisOutput.innerHTML = `<div class="text-center py-8 text-gray-400 col-span-full">
                                       <i class="fas fa-exclamation-triangle text-4xl mb-2 text-red-500"></i>
                                       <p class="text-red-600">${errorMessageText.textContent}</p>
                                     </div>`;
       } finally {
-        loadingIndicator.classList.add('hidden'); // 隱藏加載動畫
-        analyzeBtn.disabled = false; // 重新啟用按鈕
+        loadingIndicator.classList.add('hidden'); 
+        analyzeBtn.disabled = false; 
         // 只有在成功顯示結果後才啟用複製按鈕
-        if (!errorDisplay.classList.contains('hidden')) {
-             copyResultsBtn.disabled = true;
-             copySummaryBtn.disabled = true;
-        } else {
+        if (errorDisplay.classList.contains('hidden') && analysisOutput.children.length > 0) {
              copyResultsBtn.disabled = false;
              copySummaryBtn.disabled = false;
+        } else {
+             copyResultsBtn.disabled = true;
+             copySummaryBtn.disabled = true;
         }
       }
     }
@@ -343,26 +500,22 @@
         return;
       }
 
-      results.forEach((step, index) => {
-        const themeColorClass = THEME_COLORS[step.theme] || 'bg-gray-100 text-gray-700'; // 預設顏色
-        const segmentHighlight = step.highlightedNumber.replace(
-          `<span class="number-highlight">`,
-          `<span class="number-highlight text-red-600 font-bold">`
-        ).replace(
-          `</span>`,
-          `</span>`
-        ); // Re-apply Tailwind classes for span
+      results.forEach((step) => {
+        const themeColorClass = THEME_COLORS[step.theme] || 'bg-gray-100 text-gray-700'; 
+        
+        // Ensure highlightedNumber is treated as HTML
+        const segmentHighlightHtml = step.highlightedNumber; 
 
         const card = `
           <div class="p-4 rounded-md shadow-sm highlight-box">
             <p class="text-sm text-gray-500 mb-1">
-              第${step.step}步：${segmentHighlight}
+              第${step.step}步：${segmentHighlightHtml}
             </p>
             <p>
               <strong class="analysis-number">${step.analysisNumber}</strong>: 
               <span class="theme-tag ${themeColorClass}">${step.theme}</span>
             </p>
-            ${step.isBridge ? `<p class="bridge-mark">因為5是橋樑</p>` : ''}
+            ${step.isBridge ? `<p class="bridge-mark">${step.bridgeInfo}</p>` : ''}
           </div>
         `;
         analysisOutput.innerHTML += card;
@@ -371,8 +524,15 @@
       // 顯示統計摘要
       let summaryText = '';
       if (summary) {
-        Object.keys(summary).forEach(theme => {
-            if (theme !== '總計' && summary[theme] > 0) { // 不顯示總計，只顯示有數量的
+        // Sort themes for consistent display
+        const sortedThemes = Object.keys(summary).filter(t => t !== '總計').sort((a,b) => {
+            // Sort by occurrence count descending, then alphabetically
+            if (summary[a] !== summary[b]) return summary[b] - summary[a];
+            return a.localeCompare(b);
+        });
+
+        sortedThemes.forEach(theme => {
+            if (summary[theme] > 0) {
                 summaryText += `${theme}: ${summary[theme]}次\n`;
             }
         });
@@ -386,6 +546,23 @@
       }
       summaryOutput.value = summaryText;
     }
+
+    /**
+     * 從結果HTML中提取純文本用於複製
+     */
+    function getFormattedResultsText() {
+        let text = '';
+        const cards = analysisOutput.querySelectorAll('.highlight-box');
+        cards.forEach(card => {
+            const stepText = card.querySelector('p:first-child').textContent.trim();
+            const analysisText = card.querySelector('p:nth-child(2) strong').textContent.trim();
+            const themeText = card.querySelector('.theme-tag').textContent.trim();
+            const bridgeText = card.querySelector('.bridge-mark') ? ` (${card.querySelector('.bridge-mark').textContent.trim()})` : '';
+            text += `${stepText} -> ${analysisText}: ${themeText}${bridgeText}\n`;
+        });
+        return text.trim();
+    }
+
 
     /**
      * 複製內容到剪貼板
