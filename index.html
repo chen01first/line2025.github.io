@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>蔡老師數字DNA分析工具 - 手機號碼回傳測試V_003</title>
+    <title>數字分析回傳測試V_004 (Apps Script ContentService)</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -33,25 +33,25 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼DNA分析工具</h1>
-        <p class="text-center text-gray-600 mb-8">輸入手機號碼，測試後端回傳功能。</p>
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService)</h1>
+        <p class="text-center text-gray-600 mb-8">輸入任何文字或數字，測試後端回傳功能。</p>
 
         <div class="mb-6">
-            <label for="phone-number" class="block text-gray-700 text-sm font-bold mb-2">
-                手機號碼 (10 位數字):
+            <label for="user-input" class="block text-gray-700 text-sm font-bold mb-2">
+                輸入任意內容:
             </label>
-            <input type="text" id="phone-number" placeholder="例如: 0912345678" maxlength="10"
+            <input type="text" id="user-input" placeholder="例如: Hello World 或 0912345678" 
                    class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
         </div>
 
         <div class="flex justify-center mb-8">
-            <button id="analyze-button"
+            <button id="send-button"
                     class="btn-primary font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
-                測試回傳
+                傳送數據到後端
             </button>
         </div>
 
-        <div id="analysis-summary" class="hidden result-box p-4 rounded-md">
+        <div id="response-summary" class="hidden result-box p-4 rounded-md">
             <h2 class="text-xl font-semibold text-gray-800 mb-3">後端回傳結果:</h2>
             <div id="summary-text" class="text-gray-700 text-lg">
                 </div>
@@ -59,32 +59,26 @@
     </div>
 
     <script>
-        // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL ***
+        // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL (使用 ContentService 的那個) ***
         // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycbyzPQkLaGFs4YX-tRihWG2tJl_AHiYqy_yX4pwn2p7h0kpWnxZEdG_9B94zG_imi4ec/exec' 這樣的形式
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6AKy62Ccxr2k-Wb4G092P5o2z5iXx3i0BrssofsTHR61OlTMv8P0eS087Mtc1rm5P/exec'; 
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec'; 
 
-        document.getElementById('analyze-button').addEventListener('click', analyzePhoneNumber);
+        document.getElementById('send-button').addEventListener('click', sendDataToBackend);
 
-        async function analyzePhoneNumber() {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
+        async function sendDataToBackend() {
+            const userInput = document.getElementById('user-input').value.trim();
 
-            if (!phoneNumber) {
-                alert('請輸入數字進行測試！');
-                return;
-            }
-
-            // 基本驗證，確保是 10 位數字
-            if (!/^\d{10}$/.test(phoneNumber)) {
-                alert('請輸入有效的手機號碼 (10 位數字)！');
+            if (!userInput) {
+                alert('請輸入一些內容進行測試！');
                 return;
             }
 
             document.getElementById('summary-text').innerHTML = '傳送中...';
-            document.getElementById('analysis-summary').classList.remove('hidden');
+            document.getElementById('response-summary').classList.remove('hidden');
 
             try {
-                // 正確的 fetch 語法：使用反引號 (`) 和 ${} 嵌入變數
-                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?phoneNumber=${phoneNumber}`); 
+                // 使用 GET 請求傳遞資料，將 userInput 作為查詢參數
+                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`); 
 
                 if (!response.ok) {
                     // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
@@ -95,16 +89,10 @@
                 const data = await response.json(); 
 
                 // 檢查後端回傳的數據結構
-                if (data && data.receivedNumber && data.analysis) {
+                if (data && data.receivedData) {
                     document.getElementById('summary-text').innerHTML = `
-                        <p>從後端收到的數字是：<span class="font-bold text-indigo-900">${data.receivedNumber}</span></p>
-                        <p>分析結果：</p>
-                        <ul>
-                            <li>是否有效：${data.analysis.isValid ? '是' : '否'}</li>
-                            <li>訊息：${data.analysis.message}</li>
-                            <li>幸運分數：${data.analysis.luckyScore}</li>
-                            <li>模式匹配：${data.analysis.patternMatch}</li>
-                        </ul>
+                        <p>從後端收到的資料是：<span class="font-bold text-indigo-900">${data.receivedData}</span></p>
+                        <p>處理訊息：${data.message}</p>
                     `;
                 } else {
                     // 如果回傳的 JSON 格式不是預期的，也顯示出來
@@ -114,12 +102,12 @@
             } catch (error) {
                 console.error('Error fetching data from GS:', error);
                 alert('連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
-                resetAnalysis();
+                resetResponse();
             }
         }
 
-        function resetAnalysis() {
-            document.getElementById('analysis-summary').classList.add('hidden');
+        function resetResponse() {
+            document.getElementById('response-summary').classList.add('hidden');
             document.getElementById('summary-text').innerHTML = '';
         }
     </script>
