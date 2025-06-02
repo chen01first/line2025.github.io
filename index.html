@@ -33,7 +33,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService) v09</h1>
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService) v10</h1>
         <p class="text-center text-gray-600 mb-8">輸入任何文字或數字，測試後端回傳功能。</p>
 
         <div class="mb-6">
@@ -68,7 +68,7 @@
 
         async function sendDataToBackend() {
             const userInput = document.getElementById('user-input').value.trim();
-
+            console.log("▶︎ fetch 前的 URL：", `${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`);
             if (!userInput) {
                 alert('請輸入一些內容進行測試！');
                 return;
