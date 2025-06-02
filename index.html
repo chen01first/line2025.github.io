@@ -1,106 +1,410 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JS邏輯保護與CORS解決方案 (透過 Cloudflare Worker)</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        body { background-color: #f0f4f8; }
-        .container { max-width: 600px; }
-        .btn-primary { background-color: #4f46e5; color: white; }
-        .btn-primary:hover { background-color: #4338ca; }
-        .result-box { background-color: #e0f2f7; border-left: 4px solid #0ea5e9; }
-        .result-box pre { white-space: pre-wrap; word-wrap: break-word; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>蔡老師數字DNA分析工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Custom styles for better visual cues and responsive adjustments */
+    body {
+      background-color: #f8fafc; /* Tailwind's gray-50 */
+    }
+
+    .highlight-box {
+      transition: all 0.3s ease;
+      background-color: #f0f9ff; /* Tailwind's sky-50 */
+    }
+
+    .highlight-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .theme-tag {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      font-size: 0.875rem; /* text-sm */
+    }
+
+    .tab-btn {
+      @apply px-4 py-2 rounded-lg transition-colors duration-200 ease-in-out;
+      background-color: #e2e8f0; /* Tailwind's gray-200 */
+      color: #475569; /* Tailwind's slate-600 */
+      font-weight: 500;
+    }
+
+    .tab-btn.active {
+      @apply bg-indigo-600 text-white shadow-md;
+    }
+
+    .bridge-mark {
+      color: #6b7280; /* Tailwind's gray-500 */
+      font-style: italic;
+      font-size: 0.85em; /* slightly larger than before */
+      display: block; /* ensure it takes full width below the main number */
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+
+    .number-highlight {
+      color: #ef4444; /* Tailwind's red-500 */
+      font-weight: bold;
+    }
+
+    .analysis-number {
+      color: #0f172a; /* Tailwind's slate-900 */
+      font-weight: bold;
+    }
+
+    /* RWD specific adjustments for result grid */
+    .analysis-grid {
+        display: grid;
+        gap: 1rem; /* 16px */
+        /* Default for mobile: 2 columns */
+        grid-template-columns: repeat(auto-fit, minmax(calc(50% - 0.5rem), 1fr));
+    }
+
+    @media (min-width: 640px) { /* sm breakpoint: 3 columns */
+        .analysis-grid {
+            grid-template-columns: repeat(auto-fit, minmax(calc(33.333% - 0.666rem), 1fr));
+        }
+    }
+
+    @media (min-width: 768px) { /* md breakpoint: 3 columns */
+        .analysis-grid {
+            grid-template-columns: repeat(auto-fit, minmax(calc(33.333% - 0.666rem), 1fr));
+        }
+    }
+
+    @media (min-width: 1024px) { /* lg breakpoint: 4 columns */
+        .analysis-grid {
+            grid-template-columns: repeat(auto-fit, minmax(calc(25% - 0.75rem), 1fr));
+        }
+    }
+  </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">後端JS邏輯保護測試 (透過 Cloudflare Worker)03</h1>
-        <p class="text-center text-gray-600 mb-8">
-            輸入任意內容，後端Apps Script將進行**受保護的分析邏輯**處理並回傳。
-        </p>
 
-        <div class="mb-6">
-            <label for="user-input" class="block text-gray-700 text-sm font-bold mb-2">
-                輸入任意內容 (例如: 12345 或 Hello World):
-            </label>
-            <input type="text" id="user-input" placeholder="輸入要傳送給後端分析的資料" 
-                   class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+  <div class="max-w-6xl mx-auto p-4 md:p-6 space-y-6 flex-grow">
+    <header class="text-center bg-white p-6 rounded-lg shadow-md">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700 mb-2 tracking-tight">蔡老師數字DNA分析工具</h1>
+      <p class="text-gray-600 text-lg md:text-xl">輸入電話號碼，解讀其背後的數字能量</p>
+    </header>
+
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="tabs flex flex-wrap gap-2 mb-4">
+        <button class="tab-btn active" data-tab="phone-dna">手機號碼DNA</button>
+        <button class="tab-btn" data-tab="image-truth">有圖有真相</button>
+        <button class="tab-btn" data-tab="share">分享給更多人</button>
+      </div>
+
+      <div id="phone-dna-tab-content" class="tab-content space-y-4">
+        <label for="phoneInput" class="block text-lg font-medium text-gray-700">輸入電話號碼：</label>
+        <div class="flex flex-col md:flex-row gap-3">
+          <input type="tel" id="phoneInput" placeholder="請輸入09開頭的10位數字 (例如: 0912345678)"
+            class="flex-1 p-3 border border-gray-300 rounded-md text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            maxlength="10" pattern="09\d{8}" inputmode="numeric" />
+          <button id="analyzeBtn"
+            class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-indigo-700 transition-colors shadow-md flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fas fa-search mr-2"></i>開始分析
+          </button>
         </div>
-
-        <div class="flex justify-center mb-8">
-            <button id="send-button"
-                    class="btn-primary font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
-                傳送數據到後端 Apps Script
-            </button>
-        </div>
-
-        <div id="response-summary" class="hidden result-box p-4 rounded-md">
-            <h2 class="text-xl font-semibold text-gray-800 mb-3">後端處理結果:</h2>
-            <div id="summary-text" class="text-gray-700 text-lg">
-                </div>
-        </div>
-
+        <p id="inputErrorMsg" class="text-sm text-red-500 hidden">* 請輸入正確的10位數手機號碼 (09開頭)</p>
+      </div>
+      
+      <div id="image-truth-tab-content" class="tab-content hidden p-4 text-center text-gray-500">
+        <p>此功能正在開發中...</p>
+      </div>
+      <div id="share-tab-content" class="tab-content hidden p-4 text-center text-gray-500">
+        <p>分享功能即將上線！</p>
+      </div>
     </div>
 
-    <script>
-        // *** 將這個 URL 替換為您的 Cloudflare Worker 的 URL ***
-        // 前端現在直接調用 Worker，Worker 再去調用 Apps Script
-        const CLOUDFLARE_WORKER_URL = 'https://mid.chen01first.workers.dev/'; 
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-indigo-700">分析結果</h2>
+        <button id="copyResultsBtn" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-copy mr-1"></i> 複製結果
+        </button>
+      </div>
+      <div id="analysisOutput" class="analysis-grid">
+        <div class="text-center py-8 text-gray-400 col-span-full">
+          <i class="fas fa-phone-alt text-4xl mb-2"></i>
+          <p>請輸入電話號碼開始分析</p>
+        </div>
+        </div>
+      <div id="loadingIndicator" class="text-center py-4 hidden">
+        <i class="fas fa-spinner fa-spin text-indigo-500 text-2xl"></i>
+        <p class="text-gray-600 mt-2">正在努力分析中，請稍候...</p>
+      </div>
+      <div id="errorDisplay" class="text-center py-4 hidden">
+        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+        <p class="text-red-600 mt-2">分析失敗：<span id="errorMessageText"></span></p>
+      </div>
+    </section>
 
-        document.getElementById('send-button').addEventListener('click', sendDataToBackend);
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold text-indigo-700 mb-4">主題統計</h2>
+      <div class="relative">
+        <textarea id="summaryOutput" readonly
+          class="w-full p-4 border border-gray-300 rounded-md text-base h-32 md:h-40 focus:ring-2 focus:ring-indigo-500 resize-y"
+          placeholder="統計摘要會顯示在這裡..."></textarea>
+        <button id="copySummaryBtn" class="absolute top-2 right-2 text-gray-500 hover:text-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+    </section>
 
-        async function sendDataToBackend() {
-            const userInput = document.getElementById('user-input').value.trim();
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold text-indigo-700 mb-4">使用說明</h2>
+      <div class="prose prose-indigo max-w-none">
+        <ol class="list-decimal pl-5 space-y-2">
+          <li>輸入09開頭的10位數手機號碼</li>
+          <li>系統會自動在末尾添加0形成11位數進行分析（此為內部邏輯）</li>
+          <li>分析規則簡述：
+            <ul class="list-disc pl-5 mt-1">
+              <li>從左到右逐步分析2位數組合</li>
+              <li>遇到數字5作為橋樑時會有特殊標記和跳位分析</li>
+              <li>最後一位會根據規則進行循環分析</li>
+            </ul>
+          </li>
+          <li>結果會顯示每一步的分析過程和對應主題</li>
+        </ol>
+      </div>
+    </section>
+  </div>
 
-            if (!userInput) {
-                alert('請輸入一些內容進行測試！');
-                return;
-            }
+  <footer class="bg-gray-800 text-white text-center p-4 mt-6">
+    <p>&copy; 2025 蔡老師數字DNA分析工具. All rights reserved.</p>
+  </footer>
 
-            document.getElementById('summary-text').innerHTML = '傳送中，等待後端分析...';
-            document.getElementById('response-summary').classList.remove('hidden');
+  <script>
+    // ** 重要：您的 Cloudflare Worker URL **
+    const CLOUDFLARE_WORKER_URL = 'https://mid.chen01first.workers.dev/';
 
-            try {
-                // 使用 fetch API 調用 Cloudflare Worker
-                // 數據作為查詢參數傳遞，因為 Apps Script 的 doGet 是處理 GET 請求的
-                const url = `${CLOUDFLARE_WORKER_URL}?data=${encodeURIComponent(userInput)}`;
-                
-                const response = await fetch(url, {
-                    method: 'GET', // Apps Script 的 doGet 處理 GET 請求
-                    headers: {
-                        'Content-Type': 'application/json' // 雖然是 GET，但聲明預期響應類型
-                    }
-                });
+    // DOM 元素引用
+    const phoneInput = document.getElementById('phoneInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analysisOutput = document.getElementById('analysisOutput');
+    const summaryOutput = document.getElementById('summaryOutput');
+    const copyResultsBtn = document.getElementById('copyResultsBtn');
+    const copySummaryBtn = document.getElementById('copySummaryBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const errorDisplay = document.getElementById('errorDisplay');
+    const errorMessageText = document.getElementById('errorMessageText');
+    const inputErrorMsg = document.getElementById('inputErrorMsg');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-                // 檢查 HTTP 響應狀態碼
-                if (!response.ok) {
-                    const errorText = await response.text(); // 嘗試讀取錯誤信息
-                    throw new Error(`HTTP 錯誤! 狀態: ${response.status}, 訊息: ${errorText}`);
-                }
+    // 主題顏色映射 (為了前端顯示顏色)
+    const THEME_COLORS = {
+      '天醫': 'bg-green-100 text-green-800',
+      '生氣': 'bg-blue-100 text-blue-800',
+      '延年': 'bg-purple-100 text-purple-800',
+      '伏位': 'bg-gray-100 text-gray-800',
+      '六煞': 'bg-pink-100 text-pink-800',
+      '禍害': 'bg-red-100 text-red-800',
+      '絶命': 'bg-yellow-100 text-yellow-800',
+      '五鬼': 'bg-orange-100 text-orange-800',
+      // For extended伏位 themes
+      '伏位(天醫延伸)': 'bg-green-50 text-green-700',
+      '伏位(生氣延伸)': 'bg-blue-50 text-blue-700',
+      '伏位(延年延伸)': 'bg-purple-50 text-purple-700',
+      '伏位(六煞延伸)': 'bg-pink-50 text-pink-700',
+      '伏位(禍害延伸)': 'bg-red-50 text-red-700',
+      '伏位(絶命延伸)': 'bg-yellow-50 text-yellow-700',
+      '伏位(五鬼延伸)': 'bg-orange-50 text-orange-700',
+    };
 
-                // 解析 JSON 響應
-                const data = await response.json(); 
+    // 事件監聽
+    analyzeBtn.addEventListener('click', analyzePhoneNumber);
+    phoneInput.addEventListener('input', validateInput);
+    copyResultsBtn.addEventListener('click', () => copyToClipboard(analysisOutput.innerText, '分析結果'));
+    copySummaryBtn.addEventListener('click', () => copyToClipboard(summaryOutput.value, '統計摘要'));
 
-                if (data && data.analysisResult) {
-                    document.getElementById('summary-text').innerHTML = `
-                        <p>從後端收到的原始資料是：<span class="font-bold text-indigo-900">${data.receivedData || '無'}</span></p>
-                        <p>後端分析邏輯處理結果：<span class="font-bold text-green-700">${data.analysisResult}</span></p>
-                        <p>處理訊息：${data.message}</p>
-                    `;
-                } else {
-                    document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                }
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tab = button.dataset.tab;
+            tabButtons.forEach(btn => btn.classList.remove('active', 'bg-indigo-600', 'text-white'));
+            tabContents.forEach(content => content.classList.add('hidden'));
 
-            } catch (error) {
-                console.error('Error sending data to backend via Worker:', error);
-                alert('發送數據或接收響應時發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
-                document.getElementById('summary-text').innerHTML = `<p class="text-red-600">錯誤：${error.message}</p>`;
-            }
+            button.classList.add('active', 'bg-indigo-600', 'text-white');
+            document.getElementById(`${tab}-tab-content`).classList.remove('hidden');
+        });
+    });
+
+    // 初始禁用複製按鈕
+    copyResultsBtn.disabled = true;
+    copySummaryBtn.disabled = true;
+
+    /**
+     * 驗證電話號碼輸入
+     */
+    function validateInput() {
+      const number = phoneInput.value.trim();
+      const isValid = /^09\d{8}$/.test(number);
+      analyzeBtn.disabled = !isValid;
+      if (number === '') {
+        inputErrorMsg.classList.add('hidden');
+      } else if (!isValid) {
+        inputErrorMsg.classList.remove('hidden');
+      } else {
+        inputErrorMsg.classList.add('hidden');
+      }
+    }
+
+    /**
+     * 發送請求到後端進行分析
+     */
+    async function analyzePhoneNumber() {
+      const number = phoneInput.value.trim();
+      if (!/^09\d{8}$/.test(number)) {
+        alert('請輸入有效的10位數手機號碼，以09開頭。');
+        inputErrorMsg.classList.remove('hidden');
+        return;
+      }
+      inputErrorMsg.classList.add('hidden');
+
+      analysisOutput.innerHTML = ''; // 清空舊結果
+      summaryOutput.value = ''; // 清空舊摘要
+      loadingIndicator.classList.remove('hidden'); // 顯示加載動畫
+      errorDisplay.classList.add('hidden'); // 隱藏錯誤提示
+      analyzeBtn.disabled = true; // 禁用按鈕防止重複提交
+      copyResultsBtn.disabled = true;
+      copySummaryBtn.disabled = true;
+
+
+      try {
+        const url = `${CLOUDFLARE_WORKER_URL}?number=${encodeURIComponent(number)}`;
+        console.log('Fetching from:', url); // 為了調試
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json' // 聲明預期 JSON 響應
+          }
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.text();
+          console.error('HTTP Error Body:', errorBody);
+          throw new Error(`HTTP 錯誤: ${response.status} ${response.statusText}. 詳細: ${errorBody}`);
         }
-    </script>
+
+        const result = await response.json();
+        console.log('Received data:', result); // 為了調試
+
+        if (result.success && result.analysisResults) {
+          displayAnalysisResults(result.analysisResults, result.summary);
+        } else {
+          throw new Error(result.message || '後端返回未知錯誤');
+        }
+
+      } catch (error) {
+        console.error('分析失敗:', error);
+        errorMessageText.textContent = error.message || '無法連接到分析服務，請稍後再試。';
+        errorDisplay.classList.remove('hidden');
+        analysisOutput.innerHTML = `<div class="text-center py-8 text-gray-400 col-span-full">
+                                      <i class="fas fa-exclamation-triangle text-4xl mb-2 text-red-500"></i>
+                                      <p class="text-red-600">${errorMessageText.textContent}</p>
+                                    </div>`;
+      } finally {
+        loadingIndicator.classList.add('hidden'); // 隱藏加載動畫
+        analyzeBtn.disabled = false; // 重新啟用按鈕
+        // 只有在成功顯示結果後才啟用複製按鈕
+        if (!errorDisplay.classList.contains('hidden')) {
+             copyResultsBtn.disabled = true;
+             copySummaryBtn.disabled = true;
+        } else {
+             copyResultsBtn.disabled = false;
+             copySummaryBtn.disabled = false;
+        }
+      }
+    }
+
+    /**
+     * 渲染分析結果到頁面
+     * @param {Array} results - 包含分析結果的陣列
+     * @param {Object} summary - 統計摘要物件
+     */
+    function displayAnalysisResults(results, summary) {
+      analysisOutput.innerHTML = ''; // 清空初始提示
+
+      if (results.length === 0) {
+        analysisOutput.innerHTML = `<div class="text-center py-8 text-gray-400 col-span-full">
+                                      <i class="fas fa-info-circle text-4xl mb-2"></i>
+                                      <p>沒有分析結果，請檢查輸入。</p>
+                                    </div>`;
+        return;
+      }
+
+      results.forEach((step, index) => {
+        const themeColorClass = THEME_COLORS[step.theme] || 'bg-gray-100 text-gray-700'; // 預設顏色
+        const segmentHighlight = step.highlightedNumber.replace(
+          `<span class="number-highlight">`,
+          `<span class="number-highlight text-red-600 font-bold">`
+        ).replace(
+          `</span>`,
+          `</span>`
+        ); // Re-apply Tailwind classes for span
+
+        const card = `
+          <div class="p-4 rounded-md shadow-sm highlight-box">
+            <p class="text-sm text-gray-500 mb-1">
+              第${step.step}步：${segmentHighlight}
+            </p>
+            <p>
+              <strong class="analysis-number">${step.analysisNumber}</strong>: 
+              <span class="theme-tag ${themeColorClass}">${step.theme}</span>
+            </p>
+            ${step.isBridge ? `<p class="bridge-mark">因為5是橋樑</p>` : ''}
+          </div>
+        `;
+        analysisOutput.innerHTML += card;
+      });
+
+      // 顯示統計摘要
+      let summaryText = '';
+      if (summary) {
+        Object.keys(summary).forEach(theme => {
+            if (theme !== '總計' && summary[theme] > 0) { // 不顯示總計，只顯示有數量的
+                summaryText += `${theme}: ${summary[theme]}次\n`;
+            }
+        });
+        if (summary['總計'] > 0) {
+             summaryText += `\n總計分析組合數: ${summary['總計']}次`;
+        } else {
+             summaryText = '沒有主題統計結果。';
+        }
+      } else {
+          summaryText = '沒有主題統計結果。';
+      }
+      summaryOutput.value = summaryText;
+    }
+
+    /**
+     * 複製內容到剪貼板
+     * @param {string} text - 要複製的文本
+     * @param {string} type - 內容類型 (用於提示)
+     */
+    async function copyToClipboard(text, type) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert(`${type}已複製到剪貼板！`);
+      } catch (err) {
+        console.error('複製失敗:', err);
+        alert(`複製${type}失敗，請手動複製。\n錯誤: ${err.message}`);
+      }
+    }
+
+    // 初始驗證一次以設置按鈕狀態
+    validateInput();
+  </script>
 </body>
+
 </html>
