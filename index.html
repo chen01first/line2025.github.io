@@ -59,61 +59,56 @@
     </div>
 
     <script>
-        // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL (使用 ContentService 的那個) ***
-        // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec' 這樣的形式
-        // 我已根據您提供的截圖中的 URL 填寫，請確認這是您目前部署的最新 URL。
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxDtgeP5U6Ze9UHGwvu9ZDMDm3p3Iodc3ZsGo0xjP4i4RUDz4W_FjKSKhYImkFAMdUD/exec';
+       
+           const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby5xZk_MZXw1y3QNtJxdfFZzkKfgXs1Gz9TNkXhzC6csZUA_Ve_xKynUQrXLbylbNE/exec';
 
-        document.getElementById('send-button').addEventListener('click', sendDataToBackend);
+    document.getElementById('send-button').addEventListener('click', sendDataToBackend);
 
-        async function sendDataToBackend() {
-            const userInput = document.getElementById('user-input').value.trim();
-            console.log("▶︎ fetch 前的 URL：", `${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`);
-            if (!userInput) {
-                alert('請輸入一些內容進行測試！');
-                return;
-            }
-
-            document.getElementById('summary-text').innerHTML = '傳送中...';
-            document.getElementById('response-summary').classList.remove('hidden');
-
-            try {
-                // 使用 GET 請求傳遞資料，將 userInput 作為查詢參數
-                // 這是關鍵的修正！確保沒有任何多餘的 HTML 標籤
-                // 注意：這裡使用的是反引號 (`)，而不是單引號 (') 或雙引號 (")，
-                // 這是 JavaScript 模板字串的正確語法，可以正確解析 ${} 中的變數。
-                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`); 
-
-                if (!response.ok) {
-                    // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
-                    throw new Error(`HTTP error! status: ${response.status} 或 CORS 問題。`);
-                }
-                
-                // 嘗試解析 JSON 響應
-                const data = await response.json(); 
-
-                // 檢查後端回傳的數據結構
-                if (data && data.receivedData) {
-                    document.getElementById('summary-text').innerHTML = `
-                        <p>從後端收到的資料是：<span class="font-bold text-indigo-900">${data.receivedData}</span></p>
-                        <p>處理訊息：${data.message}</p>
-                    `;
-                } else {
-                    // 如果回傳的 JSON 格式不是預期的，也顯示出來
-                    document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
-                }
-
-            } catch (error) {
-                console.error('Error fetching data from GS:', error);
-                alert('連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：' + error.message);
-                resetResponse();
-            }
+    async function sendDataToBackend() {
+        const userInput = document.getElementById('user-input').value.trim();
+        console.log("▶︎ fetch 前的 URL：", `${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`);
+        if (!userInput) {
+            alert('請輸入一些內容進行測試！');
+            return;
         }
 
-        function resetResponse() {
-            document.getElementById('response-summary').classList.add('hidden');
-            document.getElementById('summary-text').innerHTML = '';
+        document.getElementById('summary-text').innerHTML = '傳送中...';
+        document.getElementById('response-summary').classList.remove('hidden');
+
+        try {
+            const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`, {
+                method: 'GET',
+                mode: 'cors', // 明確指定使用 CORS
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data && data.receivedData) {
+                document.getElementById('summary-text').innerHTML = `
+                    <p>從後端收到的資料是：<span class="font-bold text-indigo-900">${data.receivedData}</span></p>
+                    <p>處理訊息：${data.message}</p>
+                `;
+            } else {
+                document.getElementById('summary-text').innerHTML = `後端回傳格式不符，請檢查！<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+        } catch (error) {
+            console.error('Error fetching data from GS:', error);
+            alert(`連接後端發生錯誤，請檢查瀏覽器控制台。詳細錯誤：${error.message}`);
+            resetResponse();
         }
+    }
+
+    function resetResponse() {
+        document.getElementById('response-summary').classList.add('hidden');
+        document.getElementById('summary-text').innerHTML = '';
+    }
     </script>
 </body>
 </html>
