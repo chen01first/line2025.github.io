@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>數字分析回傳測試V_004 (Apps Script ContentService)</title>
+    <title>手機號碼回傳測試 (GS ContentService) v06</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -33,7 +33,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService)_v06</h1>
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService) v07</h1>
         <p class="text-center text-gray-600 mb-8">輸入任何文字或數字，測試後端回傳功能。</p>
 
         <div class="mb-6">
@@ -60,8 +60,8 @@
 
     <script>
         // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL (使用 ContentService 的那個) ***
-        // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycbyzPQkLaGFs4YX-tRihWG2tJl_AHiYqy_yX4pwn2p7h0kpWnxZEdG_9B94zG_imi4ec/exec' 這樣的形式
-        //const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec'; // 請務必替換為您實際的 URL
+        // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec' 這樣的形式
+        // 我已根據您提供的截圖中的 URL 填寫，請確認這是您目前部署的最新 URL。
         const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec';
 
         document.getElementById('send-button').addEventListener('click', sendDataToBackend);
@@ -80,9 +80,9 @@
             try {
                 // 使用 GET 請求傳遞資料，將 userInput 作為查詢參數
                 // 這是關鍵的修正！確保沒有任何多餘的 HTML 標籤
-              
-                
-                const response = await fetch(`<span class="math-inline">\{APPS\_SCRIPT\_WEB\_APP\_URL\}?data\=</span>{encodeURIComponent(userInput)}`);
+                // 注意：這裡使用的是反引號 (`)，而不是單引號 (') 或雙引號 (")，
+                // 這是 JavaScript 模板字串的正確語法，可以正確解析 ${} 中的變數。
+                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`); 
 
                 if (!response.ok) {
                     // 對於 CORS 錯誤，status 可能會是 0 或不確定，但 response.ok 會是 false
