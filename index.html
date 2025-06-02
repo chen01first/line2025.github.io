@@ -33,7 +33,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService)</h1>
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">手機號碼回傳測試 (GS ContentService)_v01</h1>
         <p class="text-center text-gray-600 mb-8">輸入任何文字或數字，測試後端回傳功能。</p>
 
         <div class="mb-6">
@@ -61,7 +61,7 @@
     <script>
         // *** 請替換為您從 Apps Script 部署後獲得的全新 Web App URL (使用 ContentService 的那個) ***
         // 這個 URL 應該是類似 'https://script.google.com/macros/s/AKfycbyzPQkLaGFs4YX-tRihWG2tJl_AHiYqy_yX4pwn2p7h0kpWnxZEdG_9B94zG_imi4ec/exec' 這樣的形式
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec'; 
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyBoKJl4nbg8GnnsyRqQpft6dLoTvfHyiBc4nara1BO0vhKvsqWIfhiaPU0TvR71f47/exec'; // 請務必替換為您實際的 URL
 
         document.getElementById('send-button').addEventListener('click', sendDataToBackend);
 
@@ -78,6 +78,7 @@
 
             try {
                 // 使用 GET 請求傳遞資料，將 userInput 作為查詢參數
+                // 這是關鍵的修正！確保沒有任何多餘的 HTML 標籤
                 const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?data=${encodeURIComponent(userInput)}`); 
 
                 if (!response.ok) {
