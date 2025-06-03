@@ -14,36 +14,71 @@
       padding: 0.25rem 0.5rem;
       border-radius: 0.25rem;
       font-weight: 600;
-      white-space: nowrap; /* 防止換行 */
+      white-space: nowrap;
       text-align: center;
-      min-width: 4rem; /* 確保最小寬度 */
+      min-width: 4rem;
     }
 
     /* 伏位(主題延續) 的時尚顏色 */
-    .theme-伏位延續 {
+    .theme-伏位延伸 {
       background-color: #fce7f3; /* 淺粉色 */
       color: #be185d; /* 深粉色 */
     }
 
     /* 針對不同吉凶星的時尚顏色 (可根據喜好調整) */
-    .theme-天醫 { background-color: #d1fae5; color: #065f46; } /* 淺綠色 */
-    .theme-生氣 { background-color: #dbeafe; color: #1e40af; } /* 淺藍色 */
-    .theme-延年 { background-color: #e0f2fe; color: #0c4a6e; } /* 淺藍灰色 */
-    .theme-伏位 { background-color: #fef9c3; color: #a16207; } /* 淺黃色 */
-    .theme-六煞 { background-color: #ffe4e6; color: #be123c; } /* 淺紅色 */
-    .theme-禍害 { background-color: #fee2e2; color: #b91c1c; } /* 淺紅色 */
-    .theme-絕命 { background-color: #fbcfe8; color: #9d174d; } /* 淺紫色 */
-    .theme-五鬼 { background-color: #e5e7eb; color: #4b5563; } /* 淺灰色 */
-    .theme-未知 { background-color: #f3f4f6; color: #6b7280; } /* 預設灰色 */
+    .theme-天醫 {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .theme-生氣 {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    .theme-延年 {
+      background-color: #e0f2fe;
+      color: #0c4a6e;
+    }
+
+    .theme-伏位 {
+      background-color: #fef9c3;
+      color: #a16207;
+    }
+
+    .theme-六煞 {
+      background-color: #ffe4e6;
+      color: #be123c;
+    }
+
+    .theme-禍害 {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .theme-絕命 {
+      background-color: #fbcfe8;
+      color: #9d174d;
+    }
+
+    .theme-五鬼 {
+      background-color: #e5e7eb;
+      color: #4b5563;
+    }
+
+    .theme-未知 {
+      background-color: #f3f4f6;
+      color: #6b7280;
+    }
 
     /* 橋樑標記的樣式 */
     .bridge-mark {
       color: #6b7280;
       font-style: italic;
       font-size: 0.8em;
-      margin-left: 0.5rem; /* 與主題標籤的間距 */
+      margin-left: 0.5rem;
       padding-left: 0.5rem;
-      border-left: 1px solid #d1d5db; /* 一條線隔開 */
+      border-left: 1px solid #d1d5db;
     }
 
     /* Tabs 選單樣式 */
@@ -56,10 +91,12 @@
     .highlight-box {
       transition: all 0.3s ease;
     }
+
     .highlight-box:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+
     .loading-spinner {
       border: 4px solid rgba(0, 0, 0, 0.1);
       border-top: 4px solid #4f46e5;
@@ -68,9 +105,15 @@
       height: 24px;
       animation: spin 1s linear infinite;
     }
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
@@ -198,21 +241,30 @@
      * @returns {string}
      */
     function getThemeClass(themeName) {
-      if (themeName.includes('伏位') && themeName.includes('延續')) {
-        return 'theme-伏位延續'; // 特殊處理伏位延續
+      if (themeName.includes('伏位') && themeName.includes('延伸')) {
+        return 'theme-伏位延伸'; // 特殊處理伏位延續
       }
       // 移除括號內容，只取基礎主題名稱
       const baseTheme = themeName.split('(')[0];
       switch (baseTheme) {
-        case '天醫': return 'theme-天醫';
-        case '生氣': return 'theme-生氣';
-        case '延年': return 'theme-延年';
-        case '伏位': return 'theme-伏位';
-        case '六煞': return 'theme-六煞';
-        case '禍害': return 'theme-禍害';
-        case '絕命': return 'theme-絕命';
-        case '五鬼': return 'theme-五鬼';
-        default: return 'theme-未知';
+        case '天醫':
+          return 'theme-天醫';
+        case '生氣':
+          return 'theme-生氣';
+        case '延年':
+          return 'theme-延年';
+        case '伏位':
+          return 'theme-伏位';
+        case '六煞':
+          return 'theme-六煞';
+        case '禍害':
+          return 'theme-禍害';
+        case '絕命':
+          return 'theme-絕命';
+        case '五鬼':
+          return 'theme-五鬼';
+        default:
+          return 'theme-未知';
       }
     }
 
@@ -228,30 +280,35 @@
         return;
       }
 
-      const gridColsClass = {
-        'desktop': 'lg:grid-cols-5',
-        'tablet': 'md:grid-cols-3',
-        'mobile': 'grid-cols-2'
-      };
-
+      // 規則 2: RWD 佈局
       const resultsGrid = document.createElement('div');
-      resultsGrid.className = `grid gap-4 ${gridColsClass.mobile} ${gridColsClass.tablet} ${gridColsClass.desktop}`;
+      resultsGrid.className = 'grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5';
 
       results.forEach(res => {
+        // 規則 2: 數字高亮顯示 (09<span>87</span>654321)
         const fullNumberDisplay = Array.from(originalPhoneNumber).map((num, idx) => {
-          if (idx >= res.start_index - 1 && idx <= res.end_index - 1) {
+          // 注意：後端傳來的 start_index 和 end_index 是 0-based
+          if (idx >= res.start_index && idx <= res.end_index) {
             return `<span class="text-indigo-600 font-bold">${num}</span>`;
           }
           return num;
         }).join('');
 
+        // 規則 2: 配對數字高亮顯示 (<span>87</span>)
         const pairedNumDisplay = Array.from(res.paired_num).map((num, idx) => {
+          // 如果是橋樑模式，則整段高亮
+          if (res.paired_num.length > 2 && res.five_num > 0) {
+             return `<span class="text-indigo-600 font-bold">${num}</span>`;
+          }
+          // 否則，只高亮原始配對的兩位數
           if (idx === 0 || idx === res.paired_num.length - 1) {
-            return `<span class="font-bold text-indigo-600">${num}</span>`;
+            return `<span class="text-indigo-600 font-bold">${num}</span>`;
           }
           return num;
         }).join('');
 
+
+        // 規則 2: 主題顏色和橢圓形
         const themeClass = getThemeClass(res.result);
         const bridgeMark = res.five_num > 0 ? `<span class="bridge-mark">${res.five_num}個5是橋樑</span>` : '';
 
@@ -260,7 +317,7 @@
         resultBox.innerHTML = `
           <h3 class="text-lg font-bold text-gray-900 mb-2">步驟 ${res.step}</h3>
           <p class="text-sm text-gray-600 mb-1">號碼: ${fullNumberDisplay}</p>
-          <p class="text-sm text-gray-600 mb-2">配對: ${pairedNumDisplay} (${res.start_index}-${res.end_index}位)</p>
+          <p class="text-sm text-gray-600 mb-2">配對: ${pairedNumDisplay} (${res.start_index} - ${res.end_index}位)</p>
           <div class="flex items-center flex-wrap gap-2">
             <span class="theme-tag ${themeClass}">${res.result}</span>
             ${bridgeMark}
@@ -307,7 +364,9 @@
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ phoneNumber: phoneNumber }),
+          body: JSON.stringify({
+            phoneNumber: phoneNumber
+          }),
         });
 
         if (!response.ok) {
@@ -347,7 +406,7 @@
         if (preStepInfo) textToCopy += `${preStepInfo}\n`;
         textToCopy += '----------\n';
       });
-      
+
       // 創建一個臨時 textarea 來執行複製
       const tempTextArea = document.createElement('textarea');
       tempTextArea.value = textToCopy;
