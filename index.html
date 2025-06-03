@@ -8,87 +8,69 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    .highlight-box {
-      transition: all 0.3s ease;
-    }
-
-    .highlight-box:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
+    /* 主題標籤的基礎樣式 */
     .theme-tag {
       display: inline-block;
       padding: 0.25rem 0.5rem;
       border-radius: 0.25rem;
       font-weight: 600;
-      color: white; /* 預設白色字體 */
-      background-color: #6b7280; /* 預設灰色背景 */
+      white-space: nowrap; /* 防止換行 */
+      text-align: center;
+      min-width: 4rem; /* 確保最小寬度 */
     }
 
-    /* 各主題顏色 */
-    .theme-天醫 { background-color: #3B82F6; } /* Blue */
-    .theme-生氣 { background-color: #10B981; } /* Green */
-    .theme-延年 { background-color: #EF4444; } /* Red */
-    .theme-伏位 { background-color: #F59E0B; } /* Amber */
-    .theme-六煞 { background-color: #6366F1; } /* Indigo */
-    .theme-禍害 { background-color: #F472B6; } /* Pink */
-    .theme-絕命 { background-color: #7C3AED; } /* Purple */
-    .theme-五鬼 { background-color: #06B6D4; } /* Cyan */
+    /* 伏位(主題延續) 的時尚顏色 */
+    .theme-伏位延續 {
+      background-color: #fce7f3; /* 淺粉色 */
+      color: #be185d; /* 深粉色 */
+    }
 
-    /* 伏位延伸主題的顏色可與主主題相同，或做淡化處理 */
-    .theme-伏位-天醫 { background-color: #60A5FA; }
-    .theme-伏位-生氣 { background-color: #34D399; }
-    .theme-伏位-延年 { background-color: #F87171; }
-    .theme-伏位-六煞 { background-color: #818CF8; }
-    .theme-伏位-禍害 { background-color: #FBCFE8; }
-    .theme-伏位-絕命 { background-color: #A78BFA; }
-    .theme-伏位-五鬼 { background-color: #22D3EE; }
+    /* 針對不同吉凶星的時尚顏色 (可根據喜好調整) */
+    .theme-天醫 { background-color: #d1fae5; color: #065f46; } /* 淺綠色 */
+    .theme-生氣 { background-color: #dbeafe; color: #1e40af; } /* 淺藍色 */
+    .theme-延年 { background-color: #e0f2fe; color: #0c4a6e; } /* 淺藍灰色 */
+    .theme-伏位 { background-color: #fef9c3; color: #a16207; } /* 淺黃色 */
+    .theme-六煞 { background-color: #ffe4e6; color: #be123c; } /* 淺紅色 */
+    .theme-禍害 { background-color: #fee2e2; color: #b91c1c; } /* 淺紅色 */
+    .theme-絕命 { background-color: #fbcfe8; color: #9d174d; } /* 淺紫色 */
+    .theme-五鬼 { background-color: #e5e7eb; color: #4b5563; } /* 淺灰色 */
+    .theme-未知 { background-color: #f3f4f6; color: #6b7280; } /* 預設灰色 */
 
+    /* 橋樑標記的樣式 */
+    .bridge-mark {
+      color: #6b7280;
+      font-style: italic;
+      font-size: 0.8em;
+      margin-left: 0.5rem; /* 與主題標籤的間距 */
+      padding-left: 0.5rem;
+      border-left: 1px solid #d1d5db; /* 一條線隔開 */
+    }
 
+    /* Tabs 選單樣式 */
     .tab-btn.active {
       background-color: #4f46e5;
       color: white;
     }
 
-    .bridge-mark {
-      color: #6b7280;
-      font-style: italic;
-      font-size: 0.8em;
-      margin-top: 0.5rem;
-      border-top: 1px dashed #d1d5db; /* 一條線隔開 */
-      padding-top: 0.5rem;
+    /* 動畫效果 */
+    .highlight-box {
+      transition: all 0.3s ease;
     }
-
-    /* RWD 佈局調整 */
-    .grid-results {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* 手機: 2 欄 */
-      gap: 1.5rem;
+    .highlight-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    @media (min-width: 768px) {
-      .grid-results {
-        grid-template-columns: repeat(3, minmax(0, 1fr)); /* 平板: 3 欄 */
-      }
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #4f46e5;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
     }
-
-    @media (min-width: 1024px) {
-      .grid-results {
-        grid-template-columns: repeat(5, minmax(0, 1fr)); /* 桌機: 5 欄 */
-      }
-    }
-
-    .number-display {
-      font-family: 'Courier New', monospace; /* 固定寬度字體 */
-      font-size: 1.25rem;
-      font-weight: bold;
-    }
-
-    .number-display span {
-        background-color: #BFDBFE; /* 淺藍色背景突出顯示 */
-        padding: 0 0.15rem;
-        border-radius: 0.25rem;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -114,24 +96,25 @@
             class="flex-1 p-3 border border-gray-300 rounded-md text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             maxlength="10" pattern="09\d{8}" />
           <button id="analyzeBtn"
-            class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-indigo-700 transition-colors shadow-md">
-            <i class="fas fa-search mr-2"></i>開始分析
+            class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-indigo-700 transition-colors shadow-md flex items-center justify-center"
+            aria-label="開始分析">
+            <span id="analyzeBtnText"><i class="fas fa-search mr-2"></i>開始分析</span>
+            <div id="loadingSpinner" class="loading-spinner hidden"></div>
           </button>
         </div>
-        <p class="text-sm text-gray-500">* 請輸入正確的10位數手機號碼 (09開頭)</p>
-        <div id="errorMessage" class="text-red-600 text-sm hidden"></div>
+        <p id="inputError" class="text-sm text-red-600 hidden">* 請輸入正確的10位數手機號碼 (09開頭)</p>
       </div>
     </div>
 
     <section class="bg-white p-6 rounded-lg shadow-md">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold text-indigo-700">分析結果</h2>
-        <button id="copyResultsBtn" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center">
+        <button id="copyResultsBtn" class="text-sm text-indigo-600 hover:text-indigo-800 flex items-center hidden">
           <i class="fas fa-copy mr-1"></i> 複製結果
         </button>
       </div>
-      <div id="analysisOutput" class="grid-results">
-        <div class="text-center py-8 text-gray-400 col-span-full">
+      <div id="analysisOutput" class="space-y-4">
+        <div class="text-center py-8 text-gray-400">
           <i class="fas fa-phone-alt text-4xl mb-2"></i>
           <p>請輸入電話號碼開始分析</p>
         </div>
@@ -144,7 +127,8 @@
         <textarea id="summaryOutput" readonly
           class="w-full p-4 border border-gray-300 rounded-md text-base h-32 focus:ring-2 focus:ring-indigo-500"
           placeholder="統計摘要會顯示在這裡..."></textarea>
-        <button id="copySummaryBtn" class="absolute top-2 right-2 text-gray-500 hover:text-indigo-600">
+        <button id="copySummaryBtn" class="absolute top-2 right-2 text-gray-500 hover:text-indigo-600 hidden"
+          aria-label="複製統計摘要">
           <i class="fas fa-copy"></i>
         </button>
       </div>
@@ -170,196 +154,225 @@
   </div>
 
   <script>
-    const CLOUDFLARE_WORKER_URL = 'https://mid.chen01first.workers.dev/';
+    const CLOUDFLARE_WORKER_URL = 'https://mid.chen01first.workers.dev/'; // 您的 Cloudflare Worker URL
 
-    class UIHandler {
-        constructor() {
-            this.phoneInput = document.getElementById('phoneInput');
-            this.analyzeBtn = document.getElementById('analyzeBtn');
-            this.analysisOutput = document.getElementById('analysisOutput');
-            this.summaryOutput = document.getElementById('summaryOutput');
-            this.copyResultsBtn = document.getElementById('copyResultsBtn');
-            this.copySummaryBtn = document.getElementById('copySummaryBtn');
-            this.errorMessage = document.getElementById('errorMessage');
+    // --- DOM 元素獲取 ---
+    const phoneInput = document.getElementById('phoneInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analyzeBtnText = document.getElementById('analyzeBtnText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const inputError = document.getElementById('inputError');
+    const analysisOutput = document.getElementById('analysisOutput');
+    const summaryOutput = document.getElementById('summaryOutput');
+    const copyResultsBtn = document.getElementById('copyResultsBtn');
+    const copySummaryBtn = document.getElementById('copySummaryBtn');
 
-            this.addEventListeners();
-        }
+    // --- 輔助函數 ---
 
-        addEventListeners() {
-            this.analyzeBtn.addEventListener('click', () => this.analyzePhoneNumber());
-            this.phoneInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.analyzePhoneNumber();
-                }
-            });
-            this.copyResultsBtn.addEventListener('click', () => this.copyToClipboard(this.analysisOutput, '分析結果'));
-            this.copySummaryBtn.addEventListener('click', () => this.copyToClipboard(this.summaryOutput, '統計摘要'));
-        }
-
-        async analyzePhoneNumber() {
-            const phoneNumber = this.phoneInput.value.trim();
-            this.errorMessage.textContent = ''; // Clear previous errors
-            this.errorMessage.classList.add('hidden');
-
-            if (!phoneNumber) {
-                this.showError('請輸入電話號碼。');
-                return;
-            }
-
-            if (!/^(09)\d{8}$/.test(phoneNumber)) {
-                this.showError('請輸入09開頭的10位數字電話號碼。');
-                return;
-            }
-
-            this.setLoadingState(true);
-            try {
-                const response = await fetch(CLOUDFLARE_WORKER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ phoneNumber: phoneNumber }),
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`伺服器錯誤: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-                console.log('分析結果:', data);
-                this.displayAnalysisResults(data.analysisResults, phoneNumber);
-                this.displaySummary(data.summary);
-
-            } catch (error) {
-                console.error('分析失敗:', error);
-                this.showError(`分析過程中發生錯誤: ${error.message}`);
-            } finally {
-                this.setLoadingState(false);
-            }
-        }
-
-        setLoadingState(isLoading) {
-            this.analyzeBtn.disabled = isLoading;
-            this.phoneInput.disabled = isLoading;
-            if (isLoading) {
-                this.analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>分析中...';
-                this.analysisOutput.innerHTML = `<div class="text-center py-8 text-indigo-500 col-span-full">
-                                                <i class="fas fa-spinner fa-spin text-4xl mb-2"></i>
-                                                <p>正在分析，請稍候...</p>
-                                            </div>`;
-                this.summaryOutput.value = '正在生成摘要...';
-            } else {
-                this.analyzeBtn.innerHTML = '<i class="fas fa-search mr-2"></i>開始分析';
-            }
-        }
-
-        showError(message) {
-            this.errorMessage.textContent = message;
-            this.errorMessage.classList.remove('hidden');
-            this.analysisOutput.innerHTML = `<div class="text-center py-8 text-gray-400 col-span-full">
-                                            <i class="fas fa-phone-alt text-4xl mb-2"></i>
-                                            <p>請輸入電話號碼開始分析</p>
-                                        </div>`;
-            this.summaryOutput.value = '';
-        }
-
-        displayAnalysisResults(results, phoneNumber) {
-            this.analysisOutput.innerHTML = ''; // 清空舊結果
-            if (results.length === 0) {
-                this.analysisOutput.innerHTML = `<div class="text-center py-8 text-gray-400 col-span-full">
-                                                <p>無分析結果。</p>
-                                            </div>`;
-                return;
-            }
-
-            results.forEach(result => {
-                const { step, start_index, end_index, paired_numbers, theme, fiveNum, pre_step, pre_step_Result } = result;
-
-                const displayPhoneNumber = this.formatPhoneNumber(phoneNumber, start_index, end_index);
-                const themeClass = this.getThemeClass(theme);
-                const bridgeMark = fiveNum > 0 ? `<div class="bridge-mark">${fiveNum}個5是橋樑</div>` : '';
-
-                const resultCard = `
-                    <div class="highlight-box bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-semibold text-gray-500">步驟 ${step}</span>
-                            <span class="theme-tag ${themeClass}">${theme}</span>
-                        </div>
-                        <div class="number-display text-gray-700 mb-2">${displayPhoneNumber}</div>
-                        <p class="text-sm text-gray-600">配對數字: <strong>${paired_numbers}</strong></p>
-                        ${bridgeMark}
-                        ${pre_step > 0 ? `<p class="text-xs text-gray-500 mt-2">前一步驟結果: ${pre_step_Result}</p>` : ''}
-                    </div>
-                `;
-                this.analysisOutput.innerHTML += resultCard;
-            });
-        }
-
-        formatPhoneNumber(phoneNumber, startIndex, endIndex) {
-            // endIndex 是 1-based, 但 JavaScript 字符串是 0-based
-            const start = startIndex - 1;
-            const end = endIndex; // 切片不包含 endIndex 的字元
-
-            // 處理 09 開頭且 start_index = 1 的情況，不顯示 09
-            let prefix = '';
-            let highlighted = '';
-            let suffix = '';
-
-            if (startIndex === 1 && paired_numbers === '09') {
-                highlighted = phoneNumber.substring(0, 2);
-                suffix = phoneNumber.substring(2);
-            } else {
-                 prefix = phoneNumber.substring(0, start);
-                 highlighted = phoneNumber.substring(start, end);
-                 suffix = phoneNumber.substring(end);
-            }
-            return `${prefix}<span title="第 ${startIndex} 到 ${endIndex} 位">${highlighted}</span>${suffix}`;
-        }
-
-
-        getThemeClass(theme) {
-            // 移除括號內容，只取主主題來應用顏色
-            let baseTheme = theme.split('(')[0];
-            // 處理「伏位(xxx延續)」的特殊顏色，但仍基於其延伸的主題
-            if (baseTheme.startsWith('伏位')) {
-                const match = theme.match(/\((.*?)(延續)?\)/);
-                if (match && match[1]) {
-                    // 如果是伏位(主題延續)，則用伏位-主題的顏色
-                    return `theme-伏位-${match[1]}`;
-                }
-                return `theme-${baseTheme}`; // 純伏位
-            }
-            return `theme-${baseTheme}`;
-        }
-
-        displaySummary(summary) {
-            this.summaryOutput.value = summary;
-        }
-
-        async copyToClipboard(element, type) {
-            let textToCopy = '';
-            if (element.id === 'analysisOutput') {
-                // 複製分析結果時，只複製文字內容，移除 HTML 標籤
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = element.innerHTML;
-                textToCopy = tempDiv.innerText;
-            } else {
-                textToCopy = element.value;
-            }
-
-            try {
-                await navigator.clipboard.writeText(textToCopy);
-                alert(`${type}已複製到剪貼簿！`);
-            } catch (err) {
-                console.error('複製失敗:', err);
-                alert(`複製${type}失敗，請手動複製。`);
-            }
-        }
+    /**
+     * 顯示加載狀態
+     */
+    function showLoading() {
+      analyzeBtn.disabled = true;
+      analyzeBtnText.classList.add('hidden');
+      loadingSpinner.classList.remove('hidden');
+      analysisOutput.innerHTML = `<div class="text-center py-8 text-indigo-400"><i class="fas fa-spinner fa-spin text-4xl mb-2"></i><p>正在分析中...</p></div>`;
+      summaryOutput.value = '';
+      copyResultsBtn.classList.add('hidden');
+      copySummaryBtn.classList.add('hidden');
+      inputError.classList.add('hidden');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        new UIHandler();
+    /**
+     * 隱藏加載狀態
+     */
+    function hideLoading() {
+      analyzeBtn.disabled = false;
+      analyzeBtnText.classList.remove('hidden');
+      loadingSpinner.classList.add('hidden');
+    }
+
+    /**
+     * 根據主題名稱獲取 CSS 類名
+     * @param {string} themeName
+     * @returns {string}
+     */
+    function getThemeClass(themeName) {
+      if (themeName.includes('伏位') && themeName.includes('延續')) {
+        return 'theme-伏位延續'; // 特殊處理伏位延續
+      }
+      // 移除括號內容，只取基礎主題名稱
+      const baseTheme = themeName.split('(')[0];
+      switch (baseTheme) {
+        case '天醫': return 'theme-天醫';
+        case '生氣': return 'theme-生氣';
+        case '延年': return 'theme-延年';
+        case '伏位': return 'theme-伏位';
+        case '六煞': return 'theme-六煞';
+        case '禍害': return 'theme-禍害';
+        case '絕命': return 'theme-絕命';
+        case '五鬼': return 'theme-五鬼';
+        default: return 'theme-未知';
+      }
+    }
+
+    /**
+     * 渲染分析結果到頁面
+     * @param {Array<Object>} results - 分析結果陣列
+     * @param {string} originalPhoneNumber - 原始電話號碼
+     */
+    function renderResults(results, originalPhoneNumber) {
+      analysisOutput.innerHTML = ''; // 清空舊結果
+      if (!results || results.length === 0) {
+        analysisOutput.innerHTML = `<div class="text-center py-8 text-gray-400"><i class="fas fa-exclamation-triangle text-4xl mb-2"></i><p>沒有分析結果。</p></div>`;
+        return;
+      }
+
+      const gridColsClass = {
+        'desktop': 'lg:grid-cols-5',
+        'tablet': 'md:grid-cols-3',
+        'mobile': 'grid-cols-2'
+      };
+
+      const resultsGrid = document.createElement('div');
+      resultsGrid.className = `grid gap-4 ${gridColsClass.mobile} ${gridColsClass.tablet} ${gridColsClass.desktop}`;
+
+      results.forEach(res => {
+        const fullNumberDisplay = Array.from(originalPhoneNumber).map((num, idx) => {
+          if (idx >= res.start_index - 1 && idx <= res.end_index - 1) {
+            return `<span class="text-indigo-600 font-bold">${num}</span>`;
+          }
+          return num;
+        }).join('');
+
+        const pairedNumDisplay = Array.from(res.paired_num).map((num, idx) => {
+          if (idx === 0 || idx === res.paired_num.length - 1) {
+            return `<span class="font-bold text-indigo-600">${num}</span>`;
+          }
+          return num;
+        }).join('');
+
+        const themeClass = getThemeClass(res.result);
+        const bridgeMark = res.five_num > 0 ? `<span class="bridge-mark">${res.five_num}個5是橋樑</span>` : '';
+
+        const resultBox = document.createElement('div');
+        resultBox.className = 'bg-gray-50 p-4 rounded-lg shadow-sm highlight-box border border-gray-200';
+        resultBox.innerHTML = `
+          <h3 class="text-lg font-bold text-gray-900 mb-2">步驟 ${res.step}</h3>
+          <p class="text-sm text-gray-600 mb-1">號碼: ${fullNumberDisplay}</p>
+          <p class="text-sm text-gray-600 mb-2">配對: ${pairedNumDisplay} (${res.start_index}-${res.end_index}位)</p>
+          <div class="flex items-center flex-wrap gap-2">
+            <span class="theme-tag ${themeClass}">${res.result}</span>
+            ${bridgeMark}
+          </div>
+          ${res.pre_step > 0 ? `<p class="text-xs text-gray-500 mt-2">上一步驟: ${res.pre_step} (${res.pre_step_Result})</p>` : ''}
+        `;
+        resultsGrid.appendChild(resultBox);
+      });
+      analysisOutput.appendChild(resultsGrid);
+      copyResultsBtn.classList.remove('hidden');
+      copySummaryBtn.classList.remove('hidden');
+    }
+
+    /**
+     * 處理複製結果到剪貼簿
+     * @param {string} elementId - 要複製的元素 ID
+     */
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.select();
+        element.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand('copy');
+        alert('結果已複製到剪貼簿！');
+      }
+    }
+
+    // --- 事件監聽器 ---
+    analyzeBtn.addEventListener('click', async () => {
+      const phoneNumber = phoneInput.value.trim();
+      inputError.classList.add('hidden'); // 隱藏錯誤提示
+
+      // 輸入驗證
+      if (!phoneNumber.match(/^09\d{8}$/)) {
+        inputError.classList.remove('hidden');
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const response = await fetch(CLOUDFLARE_WORKER_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phoneNumber: phoneNumber }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '分析失敗，請稍後再試。');
+        }
+
+        const data = await response.json();
+        renderResults(data.results, phoneNumber);
+        summaryOutput.value = data.summary;
+
+      } catch (error) {
+        console.error('分析請求失敗:', error);
+        analysisOutput.innerHTML = `<div class="text-center py-8 text-red-600"><i class="fas fa-exclamation-circle text-4xl mb-2"></i><p>分析失敗: ${error.message}</p></div>`;
+        summaryOutput.value = '無法生成統計摘要。';
+      } finally {
+        hideLoading();
+      }
+    });
+
+    copyResultsBtn.addEventListener('click', () => {
+      // 這裡需要組裝分析結果的文字格式
+      let textToCopy = '電話號碼分析結果：\n\n';
+      const resultBoxes = analysisOutput.querySelectorAll('.highlight-box');
+      resultBoxes.forEach(box => {
+        const step = box.querySelector('h3').textContent;
+        const number = box.querySelector('p:nth-of-type(1)').textContent.replace('號碼: ', '');
+        const paired = box.querySelector('p:nth-of-type(2)').textContent.replace('配對: ', '');
+        const theme = box.querySelector('.theme-tag').textContent;
+        const bridge = box.querySelector('.bridge-mark')?.textContent || '';
+        const preStepInfo = box.querySelector('p:nth-of-type(3)')?.textContent || '';
+
+        textToCopy += `${step}\n`;
+        textToCopy += `號碼: ${number}\n`;
+        textToCopy += `配對: ${paired}\n`;
+        textToCopy += `結果: ${theme} ${bridge}\n`;
+        if (preStepInfo) textToCopy += `${preStepInfo}\n`;
+        textToCopy += '----------\n';
+      });
+      
+      // 創建一個臨時 textarea 來執行複製
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = textToCopy;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      alert('分析結果已複製到剪貼簿！');
+    });
+
+    copySummaryBtn.addEventListener('click', () => copyToClipboard('summaryOutput'));
+
+    // 初始載入時檢查是否有儲存的電話號碼
+    window.addEventListener('load', () => {
+      const storedPhoneNumber = localStorage.getItem('lastPhoneNumber');
+      if (storedPhoneNumber) {
+        phoneInput.value = storedPhoneNumber;
+        // 可以選擇自動觸發分析
+        // analyzeBtn.click();
+      }
+    });
+
+    // 每次輸入電話號碼時儲存
+    phoneInput.addEventListener('input', () => {
+      localStorage.setItem('lastPhoneNumber', phoneInput.value.trim());
     });
   </script>
 </body>
