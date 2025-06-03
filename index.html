@@ -45,14 +45,14 @@
         .tag-禍害 { background-color: #f97316; } /* Orange */
         .tag-絕命 { background-color: #ef4444; } /* Red */
         .tag-五鬼 { background-color: #842e0a; } /* Brown */
-        /* 伏位延伸主題顏色 */
-        .tag-伏位-天醫延伸 { background-color: #16a34a; } /* Darker Green */
-        .tag-伏位-生氣延伸 { background-color: #2563eb; } /* Darker Blue */
-        .tag-伏位-延年延伸 { background-color: #7c3aed; } /* Darker Violet */
-        .tag-伏位-六煞延伸 { background-color: #db2777; } /* Darker Pink */
-        .tag-伏位-禍害延伸 { background-color: #ea580c; } /* Darker Orange */
-        .tag-伏位-絕命延伸 { background-color: #dc2626; } /* Darker Red */
-        .tag-伏位-五鬼延伸 { background-color: #723e0c; } /* Darker Brown */
+        /* 伏位延伸主題顏色 (使用基礎主題的深色變體) */
+        .tag-伏位-天醫延伸 { background-color: #059669; } /* Dark Green */
+        .tag-伏位-生氣延伸 { background-color: #2563eb; } /* Dark Blue */
+        .tag-伏位-延年延伸 { background-color: #7c3aed; } /* Dark Violet */
+        .tag-伏位-六煞延伸 { background-color: #be185d; } /* Dark Pink */
+        .tag-伏位-禍害延伸 { background-color: #c2410c; } /* Dark Orange */
+        .tag-伏位-絕命延伸 { background-color: #b91c1c; } /* Dark Red */
+        .tag-伏位-五鬼延伸 { background-color: #57250c; } /* Dark Brown */
 
 
         .tab-btn {
@@ -260,40 +260,66 @@
          * @returns {string} - 生成的 HTML 字串
          */
         const renderAnalysisCard = (result) => {
+            // 根據 startIndex 和 endIndex 處理電話號碼的高亮
             let phoneNumberHtml = result.phoneNumber.slice(0, result.startIndex);
             phoneNumberHtml += `<span class="font-bold text-indigo-700">${result.phoneNumber.substring(result.startIndex, result.endIndex + 1)}</span>`;
             phoneNumberHtml += result.phoneNumber.slice(result.endIndex + 1);
 
-            // 判斷伏位特殊樣式
+            // 判斷伏位特殊樣式及主題顏色
             let themeClass = '';
             let themeText = result.theme;
+            let actualThemeName = result.theme; // 用於判斷基礎主題類名
+
             if (result.theme.includes('伏位(') && result.theme.includes('延伸)')) {
-                const baseTheme = result.theme.match(/\((.*?)(?:延伸|\))/)?.[1];
-                themeClass = `tag-伏位-${baseTheme}延伸`;
-                themeText = result.theme; // 完整顯示 "伏位(XX延伸)"
+                const baseThemeMatch = result.theme.match(/\((.*?)(?:延伸|\))/);
+                if (baseThemeMatch && baseThemeMatch[1]) {
+                    actualThemeName = `伏位-${baseThemeMatch[1]}延伸`;
+                } else {
+                    actualThemeName = '伏位'; // fallback
+                }
+                themeClass = `tag-${actualThemeName}`;
             } else {
                 themeClass = `tag-${result.theme}`;
                 // 處理延年為橢圓形
                 if (result.theme === '延年') {
                     themeText = `<span class="oval-shape">${result.theme}</span>`;
-                } else {
-                    themeText = result.theme;
                 }
             }
-
-
+            
+            // 處理橋樑5的顯示邏輯
             let bridgeHtml = '';
             if (result.fiveCount > 0) {
-                bridgeHtml = `<p class="bridge-mark">${result.fiveCount}個數字5是橋樑</p>`;
+                // 根據規則 6.2a, 6.2b, 6.2c 調整顯示文字
+                let displayFiveCount = result.fiveCount;
+                let bridgeText = `個5是橋樑`;
+
+                if (result.endIndex === 9 && result.fiveCount === 1) { // 規則 6.2a (end_index=10, fiveNum=1)
+                    bridgeHtml = ''; // 不顯示橋樑文字
+                } else if (result.endIndex === 9 && result.fiveCount > 1) { // 規則 6.2b (end_index=10, fiveNum>1)
+                    // Note: 根據您的TEST_04, "9555555555" (第2步: 95;伏位(5555555是穚樑))
+                    // 這裡的 `fiveCount` 是指中間跳過的5的數量。
+                    // 如果是0955555555，startIndex=1, endIndex=9, pair=95
+                    // fiveCount = 7 (從第二個5到最後一個5)
+                    // 規則 6.2b "fiveNum=8" (如果是指總共8個5，那麼fiveNum-1才合理)
+                    // 根據TEST_04，應該是fiveCount個5是橋樑。我們使用後端傳來的fiveCount。
+                    bridgeHtml = `<p class="bridge-mark">${displayFiveCount}${bridgeText}</p>`;
+                } else if (result.endIndex < 9) { // 規則 6.2c (end_index<10)
+                    bridgeHtml = `<p class="bridge-mark">${displayFiveCount}${bridgeText}</p>`;
+                } else { // 處理 end_index = 9 但 fiveCount = 0 的情況 (不顯示)
+                   // 或者其他未明確覆蓋但應顯示的情況
+                   if (result.fiveCount > 0) {
+                       bridgeHtml = `<p class="bridge-mark">${displayFiveCount}${bridgeText}</p>`;
+                   }
+                }
             }
 
             return `
                 <div class="highlight-box bg-white p-5 rounded-lg shadow-md border border-gray-200 hover:shadow-xl flex flex-col justify-between">
                     <div>
                         <p class="text-sm text-gray-500 mb-1">步驟 ${result.step}</p>
-                        <h3 class="text-xl font-semibold mb-3 text-indigo-700">${phoneNumberHtml}</h3>
-                        <p class="text-md text-gray-600 mb-2">數字組合：<span class="font-bold text-gray-800">${result.pair}</span></p>
-                        <p class="text-md font-medium text-gray-700">主題：<span class="theme-tag ${themeClass}">${themeText}</span></p>
+                        <h3 class="text-xl font-semibold mb-3 text-indigo-700">號碼: ${phoneNumberHtml}</h3>
+                        <p class="text-md text-gray-600 mb-2">組合: <span class="font-bold text-gray-800">${result.pair}</span></p>
+                        <p class="text-md font-medium text-gray-700">主題: <span class="theme-tag ${themeClass}">${themeText}</span></p>
                     </div>
                     ${bridgeHtml}
                 </div>
@@ -351,7 +377,14 @@
                 let summaryText = '--- 分析摘要 ---\n';
                 const themeCounts = {};
                 data.analysisResults.forEach(res => {
-                    const baseTheme = res.theme.includes('伏位(') ? res.theme.match(/\((.*?)(?:延伸|\))/)?.[1] || '伏位' : res.theme;
+                    // 針對伏位延伸的主題，只統計其基礎主題
+                    let baseTheme = res.theme;
+                    if (res.theme.includes('伏位(') && res.theme.includes('延伸)')) {
+                        const baseThemeMatch = res.theme.match(/\((.*?)(?:延伸|\))/);
+                        if (baseThemeMatch && baseThemeMatch[1]) {
+                             baseTheme = `伏位(${baseThemeMatch[1]}延伸)`; // 統計時保留完整伏位延伸名稱
+                        }
+                    }
                     themeCounts[baseTheme] = (themeCounts[baseTheme] || 0) + 1;
                 });
 
@@ -399,7 +432,16 @@
 
         copyResultsBtn.addEventListener('click', () => {
             const resultsText = Array.from(analysisOutput.children)
-                                    .map(card => card.innerText.trim())
+                                    .map(card => {
+                                        // 提取卡片中的文本信息
+                                        const step = card.querySelector('p:first-child').textContent.trim();
+                                        const number = card.querySelector('h3').textContent.trim();
+                                        const combo = card.querySelector('p:nth-child(3)').textContent.trim();
+                                        const theme = card.querySelector('p:nth-child(4) .theme-tag').textContent.trim();
+                                        const bridge = card.querySelector('.bridge-mark') ? card.querySelector('.bridge-mark').textContent.trim() : '';
+                                        
+                                        return `${step}\n${number}\n${combo}\n主題: ${theme}\n${bridge}`;
+                                    })
                                     .join('\n\n---\n\n');
             if (resultsText.trim() === '') {
                 alert('沒有分析結果可以複製！');
@@ -407,6 +449,7 @@
             }
             copyToClipboard(resultsText, copyResultsBtn);
         });
+
 
         copySummaryBtn.addEventListener('click', () => {
             if (summaryOutput.value.trim() === '') {
