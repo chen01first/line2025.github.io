@@ -21,21 +21,21 @@
         /* 主題標籤樣式 - 橢圓形與動態顏色 */
         .theme-tag {
             display: inline-block;
-            padding: 0.25rem 0.75rem; /* 增加左右 padding 讓橢圓更明顯 */
-            border-radius: 9999px; /* 橢圓形 */
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
             font-weight: 600;
-            white-space: nowrap; /* 防止主題文字換行 */
-            line-height: 1.2; /* 調整行高 */
-            background-color: rgba(var(--color-rgb), 0.15); /* 動態背景顏色 */
-            color: var(--color); /* 動態文字顏色 */
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* 輕微陰影增加時尚感 */
+            white-space: nowrap;
+            line-height: 1.2;
+            background-color: rgba(var(--color-rgb), 0.15);
+            color: var(--color);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        /* 主題顏色變數定義 (請參考 Apps Script 中的顏色定義) */
+        /* 主題顏色變數定義 (與 Apps Script 保持一致) */
         .theme-天醫 { --color: #6D28D9; --color-rgb: 109, 40, 217; }
         .theme-生氣 { --color: #047857; --color-rgb: 4, 120, 87; }
         .theme-延年 { --color: #1D4ED8; --color-rgb: 29, 78, 216; }
-        .theme-伏位 { --color: #374151; --color-rgb: 55, 65, 81; } /* 伏位顏色可以中性 */
+        .theme-伏位 { --color: #374151; --color-rgb: 55, 65, 81; }
         .theme-六煞 { --color: #B45309; --color-rgb: 180, 83, 9; }
         .theme-禍害 { --color: #B91C1C; --color-rgb: 185, 28, 28; }
         .theme-絶命 { --color: #C2410C; --color-rgb: 194, 65, 12; }
@@ -43,24 +43,24 @@
         
         /* 伏位(主題延伸) 的額外樣式，使其更突出 */
         .theme-tag[class*="延伸"] {
-            border: 1px dashed var(--color); /* 虛線邊框 */
-            background-color: rgba(var(--color-rgb), 0.08); /* 更淡的背景 */
+            border: 1px dashed var(--color);
+            background-color: rgba(var(--color-rgb), 0.08);
         }
 
         /* 橋樑標記樣式 */
         .bridge-mark {
-            color: #6b7280; /* 較淡的顏色 */
+            color: #6b7280;
             font-style: italic;
             font-size: 0.8em;
-            margin-top: 0.5rem; /* 與上方內容間距 */
-            display: block; /* 讓其獨佔一行 */
-            text-align: right; /* 對齊到右側 */
+            margin-top: 0.5rem;
+            display: block;
+            text-align: right;
         }
 
         /* 橋樑之間的虛線 */
         .bridge-divider {
-            border-top: 1px dashed #D1D5DB; /* 淺灰色虛線 */
-            margin: 0.75rem 0; /* 上下間距 */
+            border-top: 1px dashed #D1D5DB;
+            margin: 0.75rem 0;
         }
 
         /* 輸入框的預留文字顏色提示 */
@@ -278,33 +278,30 @@
 
             results.forEach(result => {
                 let highlightedPhone = '';
-                const displayStartIdx = result.now_start_idx;
-                // 注意：如果分析的數字是 i, i+1, ..., i+k，則高亮範圍是從 i 到 i+k
-                const displayEndIdx = result.now_start_idx + result.display_length; 
-                
-                // 確保高亮範圍不超出電話號碼長度
+                const displayStartIdx = result.now_start_idx; // 分析起始數字在原電話號碼的索引
+                const displayEndIdx = result.now_start_idx + result.display_length; // 高亮結束位置的後一個索引
+
+                // 構建電話號碼的高亮顯示
                 if (displayStartIdx >= 0 && displayEndIdx <= originalPhoneNumber.length) {
                     highlightedPhone += originalPhoneNumber.substring(0, displayStartIdx);
-                    // 根據規則6(1)f, 0955555555 的情況，第2步是 0<SPAN>955555555</SPAN>
-                    // 這表示高亮從 currentPhoneIndex (9) 開始到最後
-                    // 對應到 result.display_number_segment 
-                    // 所以需要根據 result.display_number_segment 來高亮
+                    
                     let segmentToHighlight = originalPhoneNumber.substring(displayStartIdx, displayEndIdx);
                     
-                    // 規則6(1)b,c,d,f: X5...5Y 的高亮細節
+                    // 規則6(1)b,c,d,f 和 6(2) 的高亮細節: X5...5Y 的模式
+                    // 這裡根據後端傳來的 five_bridge_count 來判斷橋樑情況
                     if (result.five_bridge_count > 0 && result.now_start_idx !== result.now_end_idx) {
                         const firstChar = originalPhoneNumber[result.now_start_idx];
                         const lastChar = originalPhoneNumber[result.now_end_idx]; // 實際用於比對的最後一位
                         const bridgeFives = '5'.repeat(result.five_bridge_count);
 
-                        // 高亮 X 和 Y 使用一種顏色，中間的 5 用另一種顏色
-                        segmentToHighlight = `<span class="text-indigo-600 font-bold">${firstChar}</span>` + 
-                                             `<span class="text-gray-400">${bridgeFives}</span>` + 
-                                             `<span class="text-indigo-600 font-bold">${lastChar}</span>`;
-                        // 特別處理 0955555555 的 95，需要特殊高亮
+                        // 特殊處理 0955555555 的第2步 (955555555)
                         if (result.step === 2 && originalPhoneNumber === "0955555555") {
-                             segmentToHighlight = `<span class="text-purple-600 font-bold">9</span>` + 
-                                             `<span class="text-gray-400">5555555</span>`; // 9是第一個數字，其餘是5
+                             segmentToHighlight = `<span class="text-purple-600 font-bold">${firstChar}</span>` + 
+                                                  `<span class="text-gray-400">${bridgeFives}</span>`; // 9是第一個數字，其餘是5
+                        } else {
+                            segmentToHighlight = `<span class="text-indigo-600 font-bold">${firstChar}</span>` + 
+                                                 `<span class="text-gray-400">${bridgeFives}</span>` + 
+                                                 `<span class="text-indigo-600 font-bold">${lastChar}</span>`;
                         }
                     } else {
                          segmentToHighlight = `<span class="text-red-600 font-bold">${segmentToHighlight}</span>`;
@@ -322,18 +319,11 @@
                 const themeClass = `theme-${pureTheme}`;
                 const themeStyle = `--color: ${themeInfo.color}; --color-rgb: ${themeInfo.rgb};`;
                 
-                // 檢查是否為伏位延伸，添加額外 class
-                const isExtendedFuvui = result.themes.includes('延伸');
-                const extendedClass = isExtendedFuvui ? 'theme-tag[class*="延伸"]' : '';
-
-                // 實際用於比對的數字顯示
-                let displayAnalyzedNumber = result.display_number_segment;
-
                 htmlContent += `
                     <div class="p-4 bg-white rounded-lg shadow-md highlight-box">
                         <p class="text-sm text-gray-500 mb-1">第${result.step}步：${highlightedPhone}</p>
                         <p class="flex items-center">
-                            <strong class="text-gray-800 text-lg mr-2">${displayAnalyzedNumber}</strong>: 
+                            <strong class="text-gray-800 text-lg mr-2">${result.display_number_segment}</strong>: 
                             <span class="theme-tag ${themeClass}" style="${themeStyle}">${result.themes}</span>
                         </p>
                 `;
