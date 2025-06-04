@@ -21,70 +21,79 @@
         /* 主題標籤的橢圓形和顏色 */
         .theme-tag {
             display: inline-block;
-            padding: 0.25rem 0.75rem; /* 增加左右 padding 使其更像橢圓 */
-            border-radius: 9999px; /* 設為大值使其變成橢圓 */
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
             font-weight: 600;
-            color: white; /* 預設文字白色 */
+            color: white;
             text-align: center;
+            white-space: nowrap; /* 防止主題標籤換行 */
         }
 
         /* 不同主題的顏色 */
-        .theme-天醫 { background-color: #ef4444; /* red-500 */ } /* 暖色 */
-        .theme-生氣 { background-color: #22c55e; /* green-500 */ } /* 暖色 */
-        .theme-延年 { background-color: #3b82f6; /* blue-500 */ } /* 暖色 */
-        .theme-伏位 { background-color: #a855f7; /* purple-500 */ } /* 暖色 */
-        .theme-六煞 { background-color: #f97316; /* orange-500 */ } /* 冷色 */
-        .theme-禍害 { background-color: #ef4444; /* red-500 */ } /* 冷色 */
-        .theme-絕命 { background-color: #dc2626; /* red-600 */ } /* 冷色 */
-        .theme-五鬼 { background-color: #8b5cf6; /* violet-500 */ } /* 冷色 */
+        /* 天醫, 生氣, 延年, 伏位 (暖色調或積極色) */
+        .theme-天醫 { background-color: #f87171; /* red-400 */ }
+        .theme-生氣 { background-color: #4ade80; /* green-400 */ }
+        .theme-延年 { background-color: #60a5fa; /* blue-400 */ }
+        .theme-伏位 { background-color: #a78bfa; /* violet-400 */ }
+        /* 六煞, 禍害, 絕命, 五鬼 (冷色調或警示色) */
+        .theme-六煞 { background-color: #fcd34d; /* amber-300 */ }
+        .theme-禍害 { background-color: #fb923c; /* orange-400 */ }
+        .theme-絕命 { background-color: #ef4444; /* red-500 */ }
+        .theme-五鬼 { background-color: #8b5cf6; /* violet-500 */ } /* 偏紫，符合鬼魅感 */
+
 
         /* 延伸主題的顏色 (可以稍深或稍淺) */
         .theme-伏位延伸 {
-            background-color: #7e22ce; /* deep purple-700 */
+            background-color: #7c3aed; /* darker violet-600 */
         }
 
         /* 橋樑標記樣式 */
         .bridge-mark {
-            color: #6b7280; /* gray-500 */
+            color: #6b7280;
             font-style: italic;
             font-size: 0.85em;
             margin-top: 0.25rem;
-            border-top: 1px dashed #d1d5db; /* 淺灰色虛線分隔 */
+            border-top: 1px dashed #d1d5db;
             padding-top: 0.25rem;
         }
 
         /* 數字高亮樣式 */
-        .highlighted-numbers span {
+        .highlighted-number-segment {
             font-weight: bold;
         }
 
-        /* 數字5橋樑的特殊顏色 */
+        /* 被分析的兩個數字的主色 */
+        .main-analyzed-digit {
+            color: #dc2626; /* red-600 */
+        }
+
+        /* 數字5橋樑的特殊顏色 (夾在中間的5) */
         .bridge-number-inner {
-            color: #9ca3af; /* 淡灰色，區分被橋樑的5 */
+            color: #9ca3af; /* gray-400 */
             font-weight: normal; /* 讓橋樑的5不加粗 */
         }
 
         /* RWD 網格佈局 */
         .analysis-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr)); /* Mobile: 2 columns */
-            gap: 1rem; /* Tailwind's gap-4 */
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
         }
 
-        @media (min-width: 640px) { /* sm */
+        @media (min-width: 640px) {
             .analysis-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr)); /* Tablet: 3 columns */
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
 
-        @media (min-width: 1024px) { /* lg */
+        @media (min-width: 1024px) {
             .analysis-grid {
-                grid-template-columns: repeat(5, minmax(0, 1fr)); /* Desktop: 5 columns */
+                grid-template-columns: repeat(5, minmax(0, 1fr));
             }
         }
-        
-        /* TEST_04: 0955555555 特殊顏色 */
-        .test04-highlighted-5 {
+
+        /* TEST_04: 0955555555 特殊顏色要求 */
+        .test04-main-analyzed-digit {
             color: #f59e0b; /* amber-500 */
             font-weight: bold;
         }
@@ -200,7 +209,7 @@
             "伏位(絕命延伸)": "theme-伏位延伸",
             "伏位(五鬼延伸)": "theme-伏位延伸",
         };
-        
+
         analyzeBtn.addEventListener('click', analyzePhoneNumber);
         phoneInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
@@ -261,7 +270,7 @@
                 console.error('Fetch error:', error);
                 errorMessageDiv.textContent = `連接服務器失敗或分析出錯: ${error.message}`;
                 errorMessageDiv.classList.remove('hidden');
-                analysisOutput.innerHTML = '<div class="text-center py-8 text-gray-40-0 col-span-full"><i class="fas fa-exclamation-circle text-4xl mb-2"></i><p>分析過程中發生錯誤。</p></div>';
+                analysisOutput.innerHTML = '<div class="text-center py-8 text-gray-400 col-span-full"><i class="fas fa-exclamation-circle text-4xl mb-2"></i><p>分析過程中發生錯誤。</p></div>';
             }
         }
 
@@ -281,20 +290,17 @@
                 let displayPhone = '';
                 const fullNumberArray = Array.from(fullNumber);
 
-                // TEST_04: 0955555555 特殊處理
+                // TEST_04: 0955555555 特殊處理的 class
                 const isTest04 = fullNumber === '0955555555';
+                const mainDigitClass = isTest04 ? 'test04-main-analyzed-digit' : 'main-analyzed-digit';
+                const bridgeDigitClass = isTest04 ? 'test04-bridge-number-inner' : 'bridge-number-inner';
 
-                // 數字高亮邏輯
                 for (let i = 0; i < fullNumberArray.length; i++) {
                     const char = fullNumberArray[i];
-                    if (i >= step.startIndex && i <= step.endIndex) {
-                        if (step.bridgeIndexes && step.bridgeIndexes.includes(i)) {
-                             // 橋樑5的顏色
-                             displayPhone += `<span class="${isTest04 ? 'test04-bridge-number-inner' : 'bridge-number-inner'}">${char}</span>`;
-                        } else {
-                            // 被分析的數字，包括開頭和結尾的非5數字
-                            displayPhone += `<span class="${isTest04 ? 'test04-highlighted-5' : 'text-red-600 font-bold'}">${char}</span>`;
-                        }
+                    if (i === step.startIndex || i === step.endIndex) {
+                        displayPhone += `<span class="${mainDigitClass}">${char}</span>`;
+                    } else if (step.bridgeIndexes && step.bridgeIndexes.includes(i)) {
+                        displayPhone += `<span class="${bridgeDigitClass}">${char}</span>`;
                     } else {
                         displayPhone += char;
                     }
@@ -311,7 +317,7 @@
                 }
 
                 stepElement.innerHTML = `
-                    <p class="text-sm text-gray-500 mb-1">第${index + 1}步：${displayPhone}</p>
+                    <p class="text-sm text-gray-500 mb-1">第${step.step}步：${displayPhone}</p>
                     <p>${combinedNumbersHtml}${themeHtml}</p>
                     ${step.bridgeCount ? `<p class="bridge-mark">${step.bridgeCount}個5是穚樑</p>` : ''}
                 `;
