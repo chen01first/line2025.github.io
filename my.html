@@ -9,7 +9,7 @@
             --header-blue: #004a99;
             --header-text: white;
             --bg-grey: #f2f2f2;
-            --bg-yellow: #fff2cc;
+            --bg-yellow: #ffc003; /* 使用您指定的顏色 */
             --border-color: #cccccc;
             --highlight-red: #d9534f;
         }
@@ -53,12 +53,21 @@
         .text-red { color: var(--highlight-red); font-weight: bold; }
         .text-large { font-size: 1.3rem; font-weight: bold; }
 
-        /* 2倍寬輸入框 */
-        input[type="number"] { padding: 8px; border: 1px solid #aaa; border-radius: 4px; text-align: right; }
-        .input-large { width: 300px; max-width: 100%; color: var(--header-blue); font-size: 1.1rem; }
-        .input-count { width: 60px; text-align: center; }
+        /* 輸入框樣式 - 已修改底色為 #ffc003 */
+        input[type="number"] { 
+            padding: 8px; 
+            border: 2px solid #333; /* 加深邊框讓黃色更顯眼 */
+            border-radius: 4px; 
+            text-align: right; 
+            background-color: var(--bg-yellow); /* 輸入框底色 */
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .input-large { width: 300px; max-width: 100%; font-size: 1.1rem; }
+        .input-count { width: 70px; text-align: center; }
 
-        .formula-note { font-size: 0.85rem; color: #666; margin-top: 10px; line-height: 1.6; }
+        .formula-note { font-size: 0.85rem; color: #666; margin-top: 10px; line-height: 1.6; padding: 10px; border-left: 5px solid var(--header-blue); background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -103,7 +112,7 @@
                     <tr>
                         <th class="bg-grey">保障倍數</th>
                         <td>0</td>
-                        <td class="bg-yellow text-red">
+                        <td class="bg-yellow">
                             <input type="number" id="insuranceMultiplier" class="input-count" value="2.3" step="0.1">
                         </td>
                         <td class="bg-grey"><span id="displayMultiplier">2.3</span></td>
@@ -123,8 +132,8 @@
                 </table>
             </div>
             <div class="formula-note">
-                <strong>修正後公式說明：</strong><br>
-                1. 應納遺產稅 = (淨資產 - 扣除額) × 20% - 750萬<br>
+                <strong>💡 專業規劃說明：</strong><br>
+                1. 應納遺產稅 = (淨資產 - 扣除額) × 稅率 - 累進差額<br>
                 2. 保障規劃稅額 = (規劃金額 × 保障倍數) × 遺產稅率<br>
                 3. 最後預留金額 = (規劃金額 × 保障倍數) - 應納稅額
             </div>
@@ -176,7 +185,7 @@
                     <tr class="bg-grey"><td>稅目</td><td>級距</td><td>稅率</td><td>累進差額</td></tr>
                     <tr><td rowspan="3">遺產稅</td><td>5621萬以下</td><td>10%</td><td>0</td></tr>
                     <tr><td>超過5621萬~1億1242萬</td><td>15%</td><td>281.05萬</td></tr>
-                    <tr><td>1億1242萬</td><td>20%</td><td>843.15萬</td></tr>
+                    <tr><td>超過1億1242萬</td><td>20%</td><td>843.15萬</td></tr>
                     <tr style="border-top: 2px solid #999;"><td rowspan="3">贈與稅</td><td>2811萬以下</td><td>10%</td><td>0</td></tr>
                     <tr><td>2811萬~5621萬</td><td>15%</td><td>140.55萬</td></tr>
                     <tr><td>超過5621萬</td><td>20%</td><td>421.575萬</td></tr>
@@ -187,6 +196,7 @@
 </div>
 
 <script>
+    // 定義法規常數 (115年新制)
     const D_BASE = 13330000, D_FUNERAL = 1380000, G_EXEMPT = 2440000;
     const D_SPOUSE = 5530000, D_CHILD = 560000, D_PARENT = 1380000;
 
@@ -211,11 +221,12 @@
         document.getElementById('totalDeductionCalc').innerText = totalDWan;
         document.getElementById('displayTotalDeduction').innerText = totalDWan;
 
-        // 2. 遺產稅計算 (修正公式)
+        // 2. 遺產稅計算 (115年新級距)
         const netEstate = assets - totalD;
         let eRate = 0.1, eDiff = 0;
-        if (netEstate > 100000000) { eRate = 0.2; eDiff = 7500000; }
-        else if (netEstate > 50000000) { eRate = 0.15; eDiff = 2500000; }
+        // 使用您最新的級距數據
+        if (netEstate > 112420000) { eRate = 0.2; eDiff = 8431500; }
+        else if (netEstate > 56210000) { eRate = 0.15; eDiff = 2810500; }
         
         const eTax = netEstate > 0 ? (netEstate * eRate - eDiff) : 0;
         document.getElementById('estateTaxRateDisplay').innerText = (eRate * 100) + '%';
@@ -234,14 +245,17 @@
         // 有規劃(無列入)
         document.getElementById('planNoEstateFinalAmount').innerText = toWan(leveragedVal) + '萬';
 
-        // 有規劃(列入遺產) - 修正公式：(槓桿後價值 * 遺產稅率)
+        // 有規劃(列入遺產)
         const planEstateTax = leveragedVal * eRate; 
         document.getElementById('planEstateTaxRate').innerText = (eRate * 100) + '%';
         document.getElementById('planEstateTaxResult').innerText = toWan(planEstateTax) + '萬';
         document.getElementById('planYesEstateFinalAmount').innerText = toWan(leveragedVal - planEstateTax) + '萬';
     }
 
+    // 監聽所有輸入框變動
     document.querySelectorAll('input').forEach(input => input.addEventListener('input', calculate));
+    
+    // 初始計算
     calculate();
 </script>
 
