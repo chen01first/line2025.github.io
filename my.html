@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>遺產稅與贈與稅試算工具 - RWD 專業版</title>
+    <title>遺產稅規劃試算工具 (修正公式版)</title>
     <style>
         :root {
             --header-blue: #004a99;
@@ -12,62 +12,39 @@
             --bg-yellow: #fff2cc;
             --border-color: #cccccc;
             --highlight-red: #d9534f;
-            --dark-text: #333333;
         }
 
         * { box-sizing: border-box; }
         body {
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            font-family: "Microsoft JhengHei", sans-serif;
             margin: 0;
             padding: 10px;
             background-color: #ededed;
-            color: var(--dark-text);
-            line-height: 1.5;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: #ffffff;
+            background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        h1 { text-align: center; color: var(--header-blue); font-size: 1.5rem; margin-bottom: 20px; }
-
-        /* RWD Grid 佈局 */
+        /* RWD 佈局 */
         .grid-wrapper {
             display: grid;
-            grid-template-columns: 1fr; /* 手機預設一欄 */
-            gap: 25px;
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
 
         @media (min-width: 992px) {
-            .grid-wrapper {
-                grid-template-columns: 1fr 1fr; /* 電腦端雙欄 */
-            }
+            .grid-wrapper { grid-template-columns: 5fr 5fr; }
         }
 
-        /* 表格響應式包裝器 */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            margin-bottom: 20px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 320px; /* 確保表格不會縮小到無法閱讀 */
-        }
-
-        th, td {
-            border: 1px solid var(--border-color);
-            padding: 12px 8px;
-            text-align: center;
-        }
+        .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 320px; }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: center; }
 
         .header-blue { background-color: var(--header-blue); color: var(--header-text); font-weight: bold; }
         .bg-grey { background-color: var(--bg-grey); }
@@ -76,38 +53,17 @@
         .text-red { color: var(--highlight-red); font-weight: bold; }
         .text-large { font-size: 1.3rem; font-weight: bold; }
 
-        /* 輸入框樣式優化 */
-        input[type="number"] {
-            padding: 8px;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            text-align: right;
-            font-size: 1rem;
-        }
-
-        .input-large { 
-            width: 300px; /* 依照要求拉長為2倍寬 */
-            max-width: 100%; /* 手機端自動適應寬度 */
-            color: var(--header-blue);
-            background-color: #fff;
-            border: 2px solid #aec6cf;
-        }
-
+        /* 2倍寬輸入框 */
+        input[type="number"] { padding: 8px; border: 1px solid #aaa; border-radius: 4px; text-align: right; }
+        .input-large { width: 300px; max-width: 100%; color: var(--header-blue); font-size: 1.1rem; }
         .input-count { width: 60px; text-align: center; }
 
-        /* 級距表小字樣式 */
-        .small-text { font-size: 0.85rem; color: #666; }
-        .bracket-header { background-color: #444; color: white; font-weight: bold; font-size: 0.9rem; }
-        
-        .footer-note { font-size: 0.8rem; color: #888; text-align: center; margin-top: 20px; }
-
+        .formula-note { font-size: 0.85rem; color: #666; margin-top: 10px; line-height: 1.6; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>115年新制遺產與贈與稅規劃計算機</h1>
-
     <div class="grid-wrapper">
         
         <div class="left-panel">
@@ -120,11 +76,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="bg-grey">總扣除額<br>(含免稅額)</th>
+                        <th class="bg-grey">扣除免稅額<br>(已扣除)</th>
                         <td class="bg-grey text-large"><span id="displayTotalDeduction">2136</span> 萬</td>
                     </tr>
                     <tr>
-                        <th class="bg-grey">應納遺產稅<br>(稅率 <span id="estateTaxRateDisplay">20%</span>)</th>
+                        <th class="bg-grey">遺產稅<br>(稅率 <span id="estateTaxRateDisplay">20%</span>)</th>
                         <td class="bg-grey text-large text-red"><span id="estateTaxResult">1623</span> 萬</td>
                     </tr>
                 </table>
@@ -140,9 +96,9 @@
                     </tr>
                     <tr class="header-blue">
                         <th>規劃項目</th>
-                        <th>贈與稅</th>
-                        <th>有規劃<br>(不列入遺產)</th>
-                        <th>有規劃<br>(列入遺產)</th>
+                        <th>贈與</th>
+                        <th>有規劃<br>(無列入遺產)</th>
+                        <th>有規劃<br>(有列入遺產)</th>
                     </tr>
                     <tr>
                         <th class="bg-grey">保障倍數</th>
@@ -153,18 +109,24 @@
                         <td class="bg-grey"><span id="displayMultiplier">2.3</span></td>
                     </tr>
                     <tr>
-                        <th class="bg-grey">稅率 /<br>稅額</th>
-                        <td>贈與 10%<br><span id="giftTaxResult">76萬</span></td>
+                        <th class="bg-grey">稅率 /<br>應納稅額</th>
+                        <td>贈與稅 10%<br><span id="giftTaxResult">76萬</span></td>
                         <td>-</td>
-                        <td class="bg-grey">遺產 <span id="planEstateTaxRate">20%</span><br><span id="planEstateTaxResult">460萬</span></td>
+                        <td class="bg-grey">遺產稅 <span id="planEstateTaxRate">20%</span><br><span id="planEstateTaxResult">460萬</span></td>
                     </tr>
                     <tr>
-                        <th class="bg-grey">最後預留<br>資產價值</th>
+                        <th class="bg-grey">最後<br>預留金額</th>
                         <td class="text-large"><span id="giftFinalAmount">925萬</span></td>
                         <td class="bg-grey text-large text-red"><span id="planNoEstateFinalAmount">2300萬</span></td>
                         <td class="bg-grey text-large"><span id="planYesEstateFinalAmount">1840萬</span></td>
                     </tr>
                 </table>
+            </div>
+            <div class="formula-note">
+                <strong>修正後公式說明：</strong><br>
+                1. 應納遺產稅 = (淨資產 - 扣除額) × 20% - 750萬<br>
+                2. 保障規劃稅額 = (規劃金額 × 保障倍數) × 遺產稅率<br>
+                3. 最後預留金額 = (規劃金額 × 保障倍數) - 應納稅額
             </div>
         </div>
 
@@ -173,7 +135,7 @@
                 <table>
                     <thead>
                         <tr class="header-blue">
-                            <th colspan="4">遺產稅扣除額與人數輸入</th>
+                            <th colspan="4">遺產稅扣除額人數輸入</th>
                         </tr>
                         <tr class="bg-grey">
                             <th>項目</th>
@@ -209,87 +171,47 @@
             </div>
 
             <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr class="bracket-header">
-                            <th colspan="4">課稅級距對照表 (115年5月12日起適用)</th>
-                        </tr>
-                        <tr class="bg-grey">
-                            <th>稅目</th>
-                            <th>課稅級距</th>
-                            <th>稅率</th>
-                            <th>累進差額</th>
-                        </tr>
-                    </thead>
-                    <tbody class="small-text">
-                        <tr>
-                            <td rowspan="3">遺產稅</td>
-                            <td class="text-right">5,000 萬元以下</td><td>10%</td><td>0</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right">超過 5,000 萬 ~ 1 億元</td><td>15%</td><td>250 萬</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right">超過 1 億元</td><td>20%</td><td>750 萬</td>
-                        </tr>
-                        <tr style="border-top: 2px solid #888;">
-                            <td rowspan="3">贈與稅</td>
-                            <td class="text-right">2,500 萬元以下</td><td>10%</td><td>0</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right">超過 2,500 萬 ~ 5,000 萬元</td><td>15%</td><td>125 萬</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right">超過 5,000 萬元</td><td>20%</td><td>375 萬</td>
-                        </tr>
-                    </tbody>
+                <table style="font-size: 0.85rem;">
+                    <tr class="header-blue"><th colspan="4">級距基準表 (106年5月12日起適用)</th></tr>
+                    <tr class="bg-grey"><td>稅目</td><td>級距</td><td>稅率</td><td>累進差額</td></tr>
+                    <tr><td rowspan="3">遺產稅</td><td>5000萬以下</td><td>10%</td><td>0</td></tr>
+                    <tr><td>5000萬~1億</td><td>15%</td><td>250萬</td></tr>
+                    <tr><td>超過1億</td><td>20%</td><td>750萬</td></tr>
+                    <tr style="border-top: 2px solid #999;"><td rowspan="3">贈與稅</td><td>2500萬以下</td><td>10%</td><td>0</td></tr>
+                    <tr><td>2500萬~5000萬</td><td>15%</td><td>125萬</td></tr>
+                    <tr><td>超過5000萬</td><td>20%</td><td>375萬</td></tr>
                 </table>
             </div>
         </div>
     </div>
-    <div class="footer-note">
-        資料來源：財政部國稅局 106 年新制公告。請注意 115 年起免稅額可能隨物價指數微調。
-    </div>
 </div>
 
 <script>
-    // 常數設定 (115年新制)
-    const BASE_EXEMPTION = 13330000;
-    const BASE_FUNERAL = 1380000;
-    const GIFT_EXEMPTION = 2440000;
-    const D_SPOUSE = 5530000;
-    const D_CHILD = 560000;
-    const D_PARENT = 1380000;
+    const D_BASE = 13330000, D_FUNERAL = 1380000, G_EXEMPT = 2440000;
+    const D_SPOUSE = 5530000, D_CHILD = 560000, D_PARENT = 1380000;
 
     function toWan(num) { return Math.round(num / 10000); }
 
     function calculate() {
-        // 取得輸入值
         const assets = parseFloat(document.getElementById('totalAssets').value) || 0;
-        const planVal = parseFloat(document.getElementById('planAmount').value) || 0;
+        const planAmount = parseFloat(document.getElementById('planAmount').value) || 0;
         const multiplier = parseFloat(document.getElementById('insuranceMultiplier').value) || 0;
         
-        const nSpouse = parseInt(document.getElementById('countSpouse').value) || 0;
-        const nChild = parseInt(document.getElementById('countChild').value) || 0;
-        const nParent = parseInt(document.getElementById('countParent').value) || 0;
+        const nS = parseInt(document.getElementById('countSpouse').value) || 0;
+        const nC = parseInt(document.getElementById('countChild').value) || 0;
+        const nP = parseInt(document.getElementById('countParent').value) || 0;
 
-        // 1. 計算扣除額
-        const subS = nSpouse * D_SPOUSE;
-        const subC = nChild * D_CHILD;
-        const subP = nParent * D_PARENT;
-        
-        document.getElementById('subSpouse').innerText = toWan(subS);
-        document.getElementById('subChild').innerText = toWan(subC);
-        document.getElementById('subParent').innerText = toWan(subP);
+        // 1. 扣除額計算
+        document.getElementById('subSpouse').innerText = toWan(nS * D_SPOUSE);
+        document.getElementById('subChild').innerText = toWan(nC * D_CHILD);
+        document.getElementById('subParent').innerText = toWan(nP * D_PARENT);
 
-        const totalD = BASE_EXEMPTION + BASE_FUNERAL + subS + subC + subP;
+        const totalD = D_BASE + D_FUNERAL + (nS * D_SPOUSE) + (nC * D_CHILD) + (nP * D_PARENT);
         const totalDWan = toWan(totalD);
-        
         document.getElementById('totalDeductionCalc').innerText = totalDWan;
         document.getElementById('displayTotalDeduction').innerText = totalDWan;
-        document.getElementById('planEstateExemption').innerText = totalDWan;
 
-        // 2. 遺產稅計算 (10%, 15%, 20% 三段)
+        // 2. 遺產稅計算 (修正公式)
         const netEstate = assets - totalD;
         let eRate = 0.1, eDiff = 0;
         if (netEstate > 100000000) { eRate = 0.2; eDiff = 7500000; }
@@ -299,34 +221,27 @@
         document.getElementById('estateTaxRateDisplay').innerText = (eRate * 100) + '%';
         document.getElementById('estateTaxResult').innerText = toWan(eTax);
 
-        // 3. 贈與稅與規劃試算
+        // 3. 規劃項目計算
         document.getElementById('displayMultiplier').innerText = multiplier;
-        const totalPlanValue = planVal * multiplier;
+        const leveragedVal = planAmount * multiplier;
         
-        const netGift = planVal - GIFT_EXEMPTION;
-        let gRate = 0.1, gDiff = 0;
-        if (netGift > 50000000) { gRate = 0.2; gDiff = 3750000; }
-        else if (netGift > 25000000) { gRate = 0.15; gDiff = 1250000; }
-        
-        const gTax = netGift > 0 ? (netGift * gRate - gDiff) : 0;
+        // 贈與稅 (10% 級距)
+        const netGift = planAmount - G_EXEMPT;
+        const gTax = netGift > 0 ? (netGift * 0.1) : 0;
         document.getElementById('giftTaxResult').innerText = toWan(gTax) + '萬';
-        document.getElementById('giftFinalAmount').innerText = toWan(planVal - gTax) + '萬';
+        document.getElementById('giftFinalAmount').innerText = toWan(planAmount - gTax) + '萬';
 
-        // 規劃結果 (有/無遺產列入)
-        document.getElementById('planNoEstateFinalAmount').innerText = toWan(totalPlanValue) + '萬';
-        
-        const planEstateTax = totalPlanValue * eRate; // 依圖片邏輯，資產放大後適用該案之遺產邊際稅率
+        // 有規劃(無列入)
+        document.getElementById('planNoEstateFinalAmount').innerText = toWan(leveragedVal) + '萬';
+
+        // 有規劃(列入遺產) - 修正公式：(槓桿後價值 * 遺產稅率)
+        const planEstateTax = leveragedVal * eRate; 
         document.getElementById('planEstateTaxRate').innerText = (eRate * 100) + '%';
         document.getElementById('planEstateTaxResult').innerText = toWan(planEstateTax) + '萬';
-        document.getElementById('planYesEstateFinalAmount').innerText = toWan(totalPlanValue - planEstateTax) + '萬';
+        document.getElementById('planYesEstateFinalAmount').innerText = toWan(leveragedVal - planEstateTax) + '萬';
     }
 
-    // 監聽所有輸入框變動
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', calculate);
-    });
-
-    // 初始化計算
+    document.querySelectorAll('input').forEach(input => input.addEventListener('input', calculate));
     calculate();
 </script>
 
